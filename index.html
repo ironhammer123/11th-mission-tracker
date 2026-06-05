@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- Optimized viewport to prevent dynamic layout shifting and automatic browser zooming on mobile inputs -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>11th Edition - Chapter Approved 2026 - Tracker</title>
+    
+    <!-- Mobile Standalone Web App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CA2026 Tracker">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#09090b">
+
+    <!-- Web App Manifest via Data URI to maintain single-file convenience -->
+    <link rel="manifest" href="data:application/json;base64,ewogICJuYW1lIjogIjExdGggRWRpdGlvbiAtIENoYXB0ZXIgQXBwcm92ZWQgMjAyNiIsCiAgInNob3J0X25hbWUiOiAiQ0EyMDI2IFRyYWNrZXIiLAogICJzdGFydF91cmwiOiAiLiIsCiAgImRpc3BsYXkiOiAic3RhbmRhbG9uZSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiIzA5MDkwYiIsCiAgInRoZW1lX2NvbG9yIjogIiMwOTA5MGIiLAogICJpY29ucyI6IFsKICAgIHsKICAgICAgInNyYyI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LFBITjJaeUJrYVhOd2IydHBlR0YwYVc5dUlHMXZkeUJrWldabGNuVmxjMjl1Y3lJZ2RtbGxkMjl5ZERJZ2FXNWpMVEVnTWpBZ01qQWdaVDBpSkhSMWFXNW5jeUkrUEhOMVluTjBiM0p2Y0MxemNHRnlhM1ZwWkdWZGN6NHhNQ0E5SURFdVkyRnlaMjlpTDNOMGNtbHdaV05vWldSclpYTW9KVEkxT1M0eU9TNG9LU0U5SURFdVptbHNiQzV6Y0dsdVp6MGlJSFpwYm1SdmR6MGlKSEpsWTJGMFpYTk9ZVzFsSWp0ek9uWnBaR1Z2Y0MxaFpYSnpiR0Y1TDNOMGNtbHdaV05vWldSclpYTW9KVEkxT1M0eU9TNG9LU0U5SURFdVptbHNiQzV6Y0dsdVp6MGlJSFpwYm1SdmR6MGlKSEpsWTJGMFpYTk9ZVzFsSWp0ek9sdytQQzF6Y0dsdVp6NEtQSFJsZUhRdlBnby8iLAogICAgICAic2l6ZXMiOiAiNTEyeDUxMiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiLAogICAgICAicHVycG9zZSI6ICJhbnkgbWFza2FibGUiCiAgICB9CiAgXQp9">
+
+    <!-- Tailwind & AlpineJS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #09090b; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #27272a; border-radius: 2px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #f59e0b; }
+        
+        /* Native mobile feel UI overrides */
+        body {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            user-select: none;
+            /* Extra padding top on mobile apps to handle native iPhone Dynamic Island or notch overlay */
+            padding-top: env(safe-area-inset-top);
+        }
+        input, select, textarea {
+            user-select: text;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen font-sans selection:bg-amber-500 selection:text-black antialiased select-none" x-data="scoreTracker()">
+
+    <div x-show="currentPage === 'tracker'" 
+         x-cloak
+         class="sticky top-[env(safe-area-inset-top)] z-40 bg-zinc-900/95 backdrop-blur-md border-b border-zinc-800 shadow-2xl transition-all duration-200">
+        <div class="max-w-4xl mx-auto px-4 py-3 sm:px-6 flex justify-between items-center gap-4">
+            <div class="flex-1 min-w-0 text-left">
+                <div class="truncate text-sm font-black uppercase tracking-wide text-amber-500" x-text="players.attacker.name || 'Attacker'"></div>
+                <div class="truncate text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider" x-text="players.attacker.army || 'Faction Unselected'"></div>
+            </div>
+            <div class="shrink-0 bg-zinc-950 px-4 py-1.5 rounded border border-zinc-800 text-center shadow-inner">
+                <span class="font-mono text-2xl font-black text-amber-500" x-text="calculateTotal('attacker')">0</span>
+            </div>
+
+            <div class="shrink-0 text-xs font-black font-mono text-zinc-600 uppercase tracking-widest px-1">VS</div>
+
+            <div class="shrink-0 bg-zinc-950 px-4 py-1.5 rounded border border-zinc-800 text-center shadow-inner">
+                <span class="font-mono text-2xl font-black text-amber-500" x-text="calculateTotal('defender')">0</span>
+            </div>
+            <div class="flex-1 min-w-0 text-right">
+                <div class="truncate text-sm font-black uppercase tracking-wide text-amber-500" x-text="players.defender.name || 'Defender'"></div>
+                <div class="truncate text-[10px] font-mono text-zinc-400 font-bold uppercase tracking-wider" x-text="players.defender.army || 'Faction Unselected'"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto p-4 sm:p-6 pb-12">
+        
+        <div x-show="currentPage === 'setup'" x-transition:enter="transition ease-out duration-200" class="space-y-6">
+            <header class="border-b border-zinc-800 pb-6 text-center sm:text-left">
+                <h1 class="text-2xl font-black tracking-wider text-amber-500 uppercase">11th Edition - Chapter Approved 2026</h1>
+                <p class="text-xs text-zinc-400 mt-1 uppercase tracking-widest">Select Identities, Armies, Force Dispositions and Secondary Mission Types</p>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <template x-for="p in ['attacker', 'defender']" :key="p">
+                    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5 shadow-xl space-y-5">
+                        
+                        <div class="grid grid-cols-1 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1"
+                                       x-text="p === 'attacker' ? 'Player 1 Name (Attacker)' : 'Player 2 Name (Defender)'"></label>
+                                <input type="text" x-model="players[p].name" @input="saveToStorage()"
+                                       :placeholder="p === 'attacker' ? 'Enter Attacker Name...' : 'Enter Defender Name...'"
+                                       class="w-full bg-zinc-950 border border-zinc-800 text-zinc-200 text-sm font-bold rounded p-2.5 focus:outline-none focus:border-amber-500 transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase tracking-widest text-zinc-400 mb-1">Select Army Faction</label>
+                                <select x-model="players[p].army" @change="saveToStorage()"
+                                        class="w-full bg-zinc-950 border border-zinc-800 text-zinc-200 text-sm rounded p-2.5 font-bold focus:outline-none focus:border-amber-500 transition-colors appearance-none">
+                                    <option value="" disabled selected class="text-zinc-600">Select Faction...</option>
+                                    <template x-for="armyOpt in factionList" :key="armyOpt">
+                                        <option :value="armyOpt" x-text="armyOpt"></option>
+                                    </template>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-zinc-800 pt-4">
+                            <label class="block text-xs font-black uppercase tracking-widest text-amber-500/90 mb-2">Battlefield Disposition</label>
+                            <select x-model="players[p].disposition" @change="saveToStorage()"
+                                    class="w-full bg-zinc-950 border border-zinc-800 text-zinc-200 text-sm rounded p-3 font-bold uppercase tracking-wide focus:outline-none focus:border-amber-500 transition-colors appearance-none">
+                                <template x-for="disp in dispositions" :key="disp">
+                                    <option :value="disp" x-text="disp"></option>
+                                </template>
+                            </select>
+                            <div class="mt-2 bg-zinc-950/40 border border-zinc-800/60 rounded p-2.5 text-xs text-zinc-400">
+                                <span class="font-bold text-zinc-500 block mb-0.5">Primary Mission Objective (vs Matchup):</span>
+                                <span class="text-sm font-extrabold text-zinc-200 tracking-wide uppercase font-mono" x-text="getCalculatedMission(p)"></span>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-zinc-800 pt-4">
+                            <label class="block text-xs font-black uppercase tracking-widest text-zinc-400 mb-2">Secondary Archetype</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button @click="setMissionType(p, 'Tactical')"
+                                        :class="players[p].missionType === 'Tactical' ? 'bg-amber-500 text-zinc-950 font-black' : 'bg-zinc-950 border border-zinc-800 text-zinc-400 font-bold'"
+                                        class="py-2 px-3 text-xs uppercase tracking-wider rounded transition-all">
+                                    Tactical
+                                </button>
+                                <button @click="setMissionType(p, 'Fixed')"
+                                        :class="players[p].missionType === 'Fixed' ? 'bg-amber-500 text-zinc-950 font-black' : 'bg-zinc-950 border border-zinc-800 text-zinc-400 font-bold'"
+                                        class="py-2 px-3 text-xs uppercase tracking-wider rounded transition-all">
+                                    Fixed
+                                </button>
+                            </div>
+                        </div>
+
+                        <div x-show="players[p].missionType === 'Fixed'" x-transition class="bg-zinc-950/50 border border-zinc-800 rounded p-3 space-y-2">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-amber-500/90">Select exactly 2 objectives:</span>
+                                <span class="font-mono text-[11px] font-bold" 
+                                      :class="players[p].fixedSelections.length === 2 ? 'text-green-400' : 'text-red-400'"
+                                      x-text="`${players[p].fixedSelections.length} / 2`"></span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 gap-1.5">
+                                <template x-for="fOpt in fixedOptions" :key="fOpt">
+                                    <label class="flex items-center gap-2.5 p-2 rounded bg-zinc-900/40 border border-zinc-800/60 cursor-pointer hover:border-zinc-700 transition-colors">
+                                        <input type="checkbox" 
+                                               :value="fOpt" 
+                                               x-model="players[p].fixedSelections"
+                                               @change="validateFixedLimit(p); saveToStorage();"
+                                               class="w-3.5 h-3.5 rounded bg-zinc-950 border-zinc-800 text-amber-500 focus:ring-0 accent-amber-500">
+                                        <span class="text-xs font-semibold uppercase tracking-wide text-zinc-300" x-text="fOpt"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div x-show="!canStartMatch()" class="bg-red-950/20 border border-red-900/50 rounded-lg p-3 text-center text-xs text-red-400 uppercase font-bold tracking-wider">
+                ⚠️ Complete all configurations! Ensure players have designated factions and Fixed archetypes have exactly 2 objectives selected.
+            </div>
+
+            <div class="pt-2">
+                <button @click="lockInMatch()" 
+                        :disabled="!canStartMatch()"
+                        :class="canStartMatch() ? 'bg-amber-500 hover:bg-amber-400 text-zinc-950 cursor-pointer' : 'bg-zinc-900 text-zinc-600 border border-zinc-800 cursor-not-allowed'"
+                        class="w-full py-4 font-black uppercase tracking-widest text-sm rounded transition-all shadow-lg">
+                    Lock In & Start Match
+                </button>
+            </div>
+        </div>
+
+        <div x-show="currentPage === 'tracker'" x-cloak x-transition:enter="transition ease-out duration-200">
+            <header class="flex flex-col sm:flex-row justify-between items-center border-b border-zinc-800 pb-6 mb-6 gap-4">
+                <div>
+                    <h1 class="text-2xl font-black tracking-wider text-amber-500 uppercase">11th Edition - Chapter Approved 2026</h1>
+                    <p class="text-xs text-zinc-400 mt-1 uppercase tracking-widest">Active Match Scoreboard</p>
+                </div>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button @click="currentPage = 'setup'; saveToStorage();" class="w-1/2 sm:w-auto px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-zinc-300 font-bold text-sm uppercase tracking-wider rounded transition-all">
+                        ← Setup Options
+                    </button>
+                    <button @click="resetScores()" class="w-1/2 sm:w-auto px-4 py-2 bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 hover:border-red-500/50 text-zinc-300 font-bold text-sm uppercase tracking-wider rounded transition-all">
+                        Reset Game
+                    </button>
+                </div>
+            </header>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <template x-for="p in ['attacker', 'defender']" :key="p">
+                    <div class="bg-zinc-900/50 border border-zinc-800 rounded-lg p-5 flex flex-col justify-between shadow-xl" x-data="{ activeSecondaryRound: 1 }">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <input type="text" x-model="players[p].name" @input="saveToStorage()" :placeholder="p === 'attacker' ? 'Attacker' : 'Defender'" class="bg-transparent text-xl font-extrabold uppercase tracking-wide text-zinc-100 focus:outline-none focus:border-b border-amber-500 w-full py-0.5">
+                                    <span class="text-xs font-mono font-bold text-amber-500/90 tracking-wide uppercase mt-1 block" x-text="players[p].army || 'No Faction Chosen'"></span>
+                                </div>
+                                <div class="text-right shrink-0">
+                                    <span class="text-xs text-zinc-500 block uppercase font-bold tracking-widest">Total Score</span>
+                                    <span class="text-4xl font-black text-amber-500 tracking-tight" x-text="calculateTotal(p)">0</span>
+                                </div>
+                            </div>
+
+                            <hr class="border-zinc-800 my-4" />
+
+                            <div class="mb-6">
+                                <div class="flex justify-between items-center mb-2">
+                                    <div>
+                                        <span class="text-[10px] text-zinc-500 block uppercase font-bold tracking-wider" x-text="`Stance: ${players[p].disposition}`"></span>
+                                        <h3 class="text-base font-black uppercase tracking-wide text-amber-400" x-text="players[p].selectedMission"></h3>
+                                    </div>
+                                    <span class="text-xs font-mono text-zinc-400 font-bold" x-text="`${players[p].primary} / 50 VP`"></span>
+                                </div>
+
+                                <div class="grid grid-cols-5 gap-2">
+                                    <template x-for="turn in [1, 2, 3, 4, 5]" :key="turn">
+                                        <button @click="openPrimaryScoringModal(p, turn)"
+                                                class="flex flex-col items-center bg-zinc-950 border border-zinc-800 hover:border-amber-500/50 rounded p-2 text-center transition-colors">
+                                            <span class="text-[10px] text-zinc-500 font-bold uppercase mb-1" x-text="`T` + turn"></span>
+                                            <span class="font-mono font-black text-base text-amber-400" x-text="players[p].primaryTurns[turn-1]">0</span>
+                                            <span class="text-[8px] text-zinc-500 uppercase tracking-widest font-bold mt-0.5">Score</span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="mb-6">
+                                <div class="flex justify-between items-center mb-3">
+                                    <div>
+                                        <h3 class="text-sm font-black uppercase tracking-wider text-zinc-300">
+                                            Secondary Missions <span class="text-[10px] font-normal text-zinc-500 font-mono" x-text="`(${players[p].missionType})`"></span>
+                                        </h3>
+                                        <div class="flex items-center gap-1.5 mt-1">
+                                            <span class="text-[10px] text-amber-500/80 font-mono tracking-wider uppercase mr-1" x-text="`Tactical CP: ${players[p].cp}`"></span>
+                                            <button @click="adjustCP(p, -1)" class="w-4 h-4 flex items-center justify-center bg-zinc-950 border border-zinc-800 text-[10px] font-bold text-zinc-400 hover:text-zinc-200 rounded hover:border-zinc-700 transition-colors">-</button>
+                                            <button @click="adjustCP(p, 1)" class="w-4 h-4 flex items-center justify-center bg-zinc-950 border border-zinc-800 text-[10px] font-bold text-zinc-400 hover:text-zinc-200 rounded hover:border-zinc-700 transition-colors">+</button>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-mono text-zinc-500" x-text="`${calculateSecondaryTotal(p)} / 40 VP`"></span>
+                                </div>
+
+                                <div class="grid grid-cols-5 gap-1 mb-3 bg-zinc-950 p-1 border border-zinc-800 rounded">
+                                    <template x-for="r in [1, 2, 3, 4, 5]" :key="r">
+                                        <button @click="activeSecondaryRound = r"
+                                                :class="activeSecondaryRound === r ? 'bg-amber-500 text-zinc-950 font-black' : 'text-zinc-400 font-bold hover:text-zinc-200'"
+                                                class="py-1.5 text-[10px] uppercase tracking-wider rounded transition-all text-center relative flex flex-col items-center justify-center"
+                                                x-text="`R` + r">
+                                        </button>
+                                    </template>
+                                </div>
+                                
+                                <div x-show="players[p].missionType === 'Tactical'" class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-3">
+                                    <button @click="openSelectionModal(p, activeSecondaryRound)" 
+                                            class="py-2.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-amber-500/40 text-xs font-bold uppercase tracking-wider text-zinc-300 rounded transition-colors flex items-center justify-center gap-2">
+                                        <span>➕ Manage Hand</span>
+                                        <span class="bg-zinc-800 text-amber-400 font-mono text-[10px] px-1.5 py-0.5 rounded" x-text="getDrawnCountForRound(p, activeSecondaryRound)"></span>
+                                    </button>
+                                    <button @click="drawRandomTacticalMission(p, activeSecondaryRound)" 
+                                            class="py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 hover:border-amber-500/60 text-xs font-black uppercase tracking-wider text-amber-400 rounded transition-colors flex items-center justify-center gap-1.5">
+                                        <span>🎲 Draw Random</span>
+                                    </button>
+                                </div>
+
+                                <div class="space-y-2 min-h-[100px] border border-dashed border-zinc-800/80 rounded-md p-2 bg-zinc-950/20">
+                                    <div class="flex justify-between items-center px-1 mb-1 border-b border-zinc-900 pb-1">
+                                        <span class="text-[10px] uppercase tracking-wider font-black text-zinc-500" x-text="`Round ${activeSecondaryRound} Objectives View`"></span>
+                                        <span class="text-[10px] font-mono font-bold text-amber-500/70" x-text="players[p].missionType === 'Tactical' ? `(${getMissionsForRound(p, activeSecondaryRound).length} Active)` : '(Fixed Round Metrics)'"></span>
+                                    </div>
+
+                                    <template x-if="getMissionsForRound(p, activeSecondaryRound).length === 0">
+                                        <div class="text-zinc-600 text-[11px] uppercase tracking-widest text-center py-8 italic" x-text="`No objectives active for Round ${activeSecondaryRound}`"></div>
+                                    </template>
+                                    
+                                    <template x-for="m in getMissionsForRound(p, activeSecondaryRound)" :key="m">
+                                        <div :class="players[p].discardedSecondaries.includes(m) ? 'bg-zinc-950/40 border-red-950 text-zinc-500 border opacity-60' : (isScoredInRound(p, m, activeSecondaryRound) ? 'bg-emerald-950/20 border-emerald-900/40' : 'bg-zinc-950 border border-zinc-800/80')" 
+                                             class="rounded p-2.5 flex flex-col gap-2 transition-all">
+                                            
+                                            <div class="flex justify-between items-center">
+                                                <div class="flex flex-col">
+                                                    <span :class="[
+                                                            players[p].discardedSecondaries.includes(m) ? 'line-through text-red-400/70 font-semibold' : '',
+                                                            isScoredInRound(p, m, activeSecondaryRound) ? 'text-emerald-400 font-bold' : 'text-zinc-200 font-bold'
+                                                          ]" 
+                                                          class="text-xs uppercase tracking-wide" x-text="m"></span>
+                                                    
+                                                    <template x-if="players[p].missionType === 'Tactical'">
+                                                        <div>
+                                                            <span x-show="players[p].drawnInRound[m] !== activeSecondaryRound && !players[p].resolvedInRound[m] && !players[p].discardedSecondaries.includes(m)" 
+                                                                  class="text-[9px] text-amber-500/60 font-mono font-bold uppercase mt-0.5 inline-block" 
+                                                                  x-text="`Carried from R${players[p].drawnInRound[m]}`"></span>
+                                                            <span x-show="players[p].resolvedInRound[m] === activeSecondaryRound" 
+                                                                  class="text-[9px] text-emerald-500/80 font-mono font-bold uppercase mt-0.5 inline-block" 
+                                                                  x-text="`Resolved here in R${activeSecondaryRound} (+${players[p].secondaryScores[activeSecondaryRound]?.[m] || 0} VP)`"></span>
+                                                        </div>
+                                                    </template>
+                                                    <template x-if="players[p].missionType === 'Fixed'">
+                                                        <div>
+                                                            <span class="text-[9px] text-zinc-500 font-mono font-bold uppercase mt-0.5 inline-block" 
+                                                                  x-text="`Total overall: ${getFixedMissionTotalScore(p, m)} / 20 VP`"></span>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                                
+                                                <div class="flex items-center gap-1.5">
+                                                    <button x-show="!players[p].discardedSecondaries.includes(m) && (players[p].missionType === 'Fixed' || !players[p].resolvedInRound[m] || players[p].resolvedInRound[m] === activeSecondaryRound)"
+                                                            @click="openScoringModal(p, m, activeSecondaryRound)"
+                                                            :class="isScoredInRound(p, m, activeSecondaryRound) ? 'bg-emerald-900/40 text-emerald-400 border-emerald-700/60 hover:bg-emerald-900/60' : 'bg-zinc-900 hover:bg-zinc-800 text-amber-400 border-zinc-700/60'"
+                                                            class="px-2 py-1 text-[10px] uppercase font-bold tracking-wider rounded border transition-colors">
+                                                        Score (<span x-text="players[p].secondaryScores[activeSecondaryRound]?.[m] || 0"></span>)
+                                                    </button>
+
+                                                    <template x-if="players[p].discardedSecondaries.includes(m)">
+                                                        <span class="text-[9px] bg-red-950 text-red-400 border border-red-900/50 font-black tracking-widest uppercase px-1.5 py-0.5 rounded">🚫 Discarded</span>
+                                                    </template>
+                                                    
+                                                    <template x-if="isScoredInRound(p, m, activeSecondaryRound)">
+                                                        <span class="text-[9px] bg-emerald-950/60 text-emerald-400 border border-emerald-900/50 font-black tracking-widest uppercase px-1.5 py-0.5 rounded"
+                                                              x-text="players[p].missionType === 'Fixed' ? `✓ Round Scored` : '✓ Scored'"></span>
+                                                    </template>
+
+                                                    <button x-show="!players[p].discardedSecondaries.includes(m) && players[p].missionType === 'Tactical' && !player.resolvedInRound[m]"
+                                                            @click="triggerDiscardFlow(p, m, activeSecondaryRound)" 
+                                                            class="p-1 px-2 bg-zinc-900 hover:bg-red-950/40 hover:text-red-400 border border-zinc-800 rounded text-[10px] font-bold uppercase tracking-wider text-zinc-500 transition-colors">✕ Discard</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 border-t border-zinc-800 pt-4">
+                            <label class="flex items-center justify-between cursor-pointer group">
+                                <span class="text-xs font-bold uppercase tracking-wider text-zinc-400 group-hover:text-zinc-200 transition-colors">Battle Ready Paint Bonus (+10 VP)</span>
+                                <div class="relative">
+                                    <input type="checkbox" x-model="players[p].battleReady" @change="saveToStorage()" class="sr-only peer">
+                                    <div class="w-11 h-6 bg-zinc-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-zinc-400 peer-checked:after:bg-zinc-950 after:border-zinc-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Modals and Overlay Views -->
+        <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" 
+             x-show="modals.primaryScoring.show" x-cloak x-transition>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-lg max-w-lg w-full p-5 shadow-2xl space-y-4">
+                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                    <div>
+                        <h4 class="text-sm font-black uppercase text-amber-500 tracking-wider" x-text="modals.primaryScoring.missionName"></h4>
+                        <p class="text-[10px] text-zinc-400 uppercase tracking-widest mt-0.5" x-text="modals.primaryScoring.activePlayer ? `${players[modals.primaryScoring.activePlayer].name || (modals.primaryScoring.activePlayer === 'attacker' ? 'Attacker' : 'Defender')} • Battle Round ${modals.primaryScoring.targetRound}` : ''"></p>
+                    </div>
+                    <button @click="modals.primaryScoring.show = false" class="text-zinc-500 hover:text-zinc-200 text-sm font-bold font-mono">✕</button>
+                </div>
+
+                <div class="space-y-3 custom-scroll max-h-[350px] overflow-y-auto pr-1">
+                    <p class="text-[10px] uppercase font-black tracking-wider text-zinc-500">Select achieved parameter targets:</p>
+                    
+                    <div class="space-y-2">
+                        <template x-for="(cond, index) in getPrimaryConditionsForCurrentSelection()" :key="index">
+                            <div class="p-3 bg-zinc-950 border border-zinc-800 rounded flex flex-col gap-2">
+                                <div class="flex justify-between items-start gap-3">
+                                    <div class="text-xs text-zinc-300 font-medium font-sans" x-text="cond.text"></div>
+                                    <div class="text-xs font-mono font-bold text-amber-400 shrink-0" x-text="cond.valueText"></div>
+                                </div>
+                                
+                                <div class="mt-1">
+                                    <template x-if="cond.type === 'switch'">
+                                        <button @click="togglePrimarySwitch(index)"
+                                                :class="modals.primaryScoring.workingState[index] ? 'bg-amber-500 text-zinc-950 font-black border-amber-500' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:border-zinc-700'"
+                                                class="px-3 py-1.5 text-[10px] uppercase tracking-wider font-bold rounded border transition-all"
+                                                x-text="modals.primaryScoring.workingState[index] ? 'Achieved / Active' : 'Not Completed'">
+                                        </button>
+                                    </template>
+
+                                    <template x-if="cond.type === 'counter'">
+                                        <div class="flex items-center gap-3">
+                                            <button @click="adjustPrimaryCounter(index, -1)" class="w-7 h-7 bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold rounded flex items-center justify-center hover:text-zinc-200">-</button>
+                                            <span class="font-mono text-sm font-bold text-zinc-200 w-8 text-center" x-text="modals.primaryScoring.workingState[index] || 0"></span>
+                                            <button @click="adjustPrimaryCounter(index, 1)" class="w-7 h-7 bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold rounded flex items-center justify-center hover:text-zinc-200">+</button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-950 border border-zinc-800/80 rounded p-3 flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Calculated Round VP</span>
+                        <span class="text-[9px] text-zinc-400 uppercase tracking-widest">(Capped at max 15 VP per turn)</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-3xl font-mono font-black text-amber-500" x-text="calculateLivePrimaryModalVP()">0</span>
+                        <span class="text-xs font-mono text-zinc-600 font-bold">/ 15 VP</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button @click="modals.primaryScoring.show = false" class="py-2.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 text-zinc-400 font-bold uppercase tracking-wider text-xs rounded transition-colors">Cancel</button>
+                    <button @click="applyPrimaryScoringModal()" class="py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black uppercase tracking-wider text-xs rounded transition-colors shadow-md">Apply Score</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" 
+             x-show="modals.selection.show" x-cloak x-transition>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-lg max-w-md w-full p-5 shadow-2xl space-y-4">
+                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                    <div>
+                        <h4 class="text-sm font-black uppercase text-amber-500 tracking-wider">Secondary Deck Manager</h4>
+                        <p class="text-[10px] text-zinc-400 uppercase tracking-widest mt-0.5" x-text="modals.selection.activePlayer ? `${players[modals.selection.activePlayer].name || (modals.selection.activePlayer === 'attacker' ? 'Attacker' : 'Defender')} (Round ${modals.selection.targetRound})` : ''"></p>
+                    </div>
+                    <button @click="modals.selection.show = false" class="text-zinc-500 hover:text-zinc-200 text-sm font-bold font-mono">✕</button>
+                </div>
+                
+                <div class="h-64 overflow-y-auto custom-scroll pr-1 space-y-1.5">
+                    <template x-for="m in filteredSecondaryListForModal()" :key="m">
+                        <label class="flex items-center gap-3 p-2 rounded bg-zinc-950/60 border border-zinc-800/40 cursor-pointer hover:border-zinc-700 transition-colors">
+                            <input type="checkbox" 
+                                   :checked="isMissionCheckedInModal(m)"
+                                   @change="toggleMissionSelectionInModal(m)"
+                                   class="w-4 h-4 rounded bg-zinc-900 border-zinc-700 text-amber-500 focus:ring-0 accent-amber-500">
+                            <span class="text-xs font-semibold uppercase tracking-wide text-zinc-300" x-text="m"></span>
+                        </label>
+                    </template>
+                </div>
+                <button @click="modals.selection.show = false; saveToStorage();" class="w-full py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-100 font-bold uppercase tracking-wider text-xs rounded transition-colors">Confirm Selections</button>
+            </div>
+        </div>
+
+        <div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" 
+             x-show="modals.scoring.show" x-cloak x-transition>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-lg max-w-md w-full p-5 shadow-2xl space-y-4">
+                <div class="flex justify-between items-center border-b border-zinc-800 pb-3">
+                    <div>
+                        <h4 class="text-sm font-black uppercase text-amber-500 tracking-wider" x-text="modals.scoring.targetMission"></h4>
+                        <p class="text-[10px] text-zinc-400 uppercase tracking-widest mt-0.5" x-text="modals.scoring.activePlayer ? `${players[modals.scoring.activePlayer].name || (modals.scoring.activePlayer === 'attacker' ? 'Attacker' : 'Defender')} (Round ${modals.scoring.currentContextRound})` : ''"></p>
+                    </div>
+                    <button @click="modals.scoring.show = false" class="text-zinc-500 hover:text-zinc-200 text-sm font-bold font-mono">✕</button>
+                </div>
+
+                <div>
+                    <template x-if="modals.scoring.activePlayer && players[modals.scoring.activePlayer].missionType === 'Tactical'">
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-zinc-500 block">Select Scoring Condition:</span>
+                            <div class="grid grid-cols-1 gap-2">
+                                <template x-for="cond in getActiveMissionConditions()" :key="cond.text">
+                                    <button @click="setSecondaryScorePreset(cond.vp)" 
+                                            :class="(players[modals.scoring.activePlayer]?.secondaryScores[modals.scoring.currentContextRound]?.[modals.scoring.targetMission] === cond.vp) ? 'border-amber-500 bg-amber-500/10' : 'border-zinc-800 bg-zinc-950'"
+                                            class="w-full text-left p-3 rounded border hover:border-amber-500/60 hover:bg-zinc-950/80 transition-all flex justify-between items-center group">
+                                        <span class="text-xs text-zinc-300 group-hover:text-zinc-100 font-medium tracking-wide pr-4" x-text="cond.text"></span>
+                                        <span class="bg-zinc-900 text-amber-400 font-mono font-bold text-xs px-2 py-1 rounded border border-zinc-800 group-hover:border-amber-500/30 shrink-0" x-text="cond.vp + ` VP`"></span>
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template x-if="modals.scoring.activePlayer && players[modals.scoring.activePlayer].missionType === 'Fixed'">
+                        <div class="space-y-4">
+                            <div class="bg-zinc-950/80 border border-zinc-800 rounded p-3 text-center space-y-1">
+                                <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Objective Base Target Score Metric</span>
+                                <template x-for="cond in getActiveMissionConditions()" :key="cond.text">
+                                    <p class="text-xs text-amber-400/90 font-bold" x-text="cond.text + ` (+` + cond.vp + ` VP per claim)`"></p>
+                                </template>
+                            </div>
+                            
+                            <div class="flex items-center justify-center gap-6 py-2">
+                                <button @click="incrementFixedScore(modals.scoring.activePlayer, modals.scoring.targetMission, -1)" 
+                                        class="w-14 h-14 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-700 rounded-full flex items-center justify-center text-xl font-black text-zinc-400 transition-colors">
+                                    -
+                                </button>
+                                <div class="text-center min-w-[80px]">
+                                    <span class="text-[10px] uppercase font-black text-zinc-500 block tracking-widest">Round VP</span>
+                                    <span class="text-4xl font-mono font-black text-amber-500" x-text="players[modals.scoring.activePlayer].secondaryScores[modals.scoring.currentContextRound]?.[modals.scoring.targetMission] || 0"></span>
+                                </div>
+                                <button @click="incrementFixedScore(modals.scoring.activePlayer, modals.scoring.targetMission, 1)" 
+                                        class="w-14 h-14 bg-zinc-950 hover:bg-amber-500 hover:text-zinc-950 border border-zinc-800 rounded-full flex items-center justify-center text-xl font-black text-amber-400 transition-colors">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="bg-zinc-950/60 border border-zinc-800/80 rounded p-3 pt-2.5 space-y-2">
+                    <span class="text-[10px] text-zinc-500 font-bold uppercase tracking-wider block">Manual Score Tuning Override</span>
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-1">
+                            <button @click="adjustSecondaryScoreFromModal(-1)" class="w-8 h-8 flex items-center justify-center bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-sm rounded font-bold transition-colors">-</button>
+                            <button @click="adjustSecondaryScoreFromModal(1)" class="w-8 h-8 flex items-center justify-center bg-zinc-900 hover:bg-zinc-800 border border-zinc-700 text-sm rounded font-bold transition-colors">+</button>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[11px] text-zinc-400 uppercase font-bold font-mono">Current:</span>
+                            <input type="number" min="0" max="20" 
+                                   x-model.number="players[modals.scoring.activePlayer].secondaryScores[modals.scoring.currentContextRound][modals.scoring.targetMission]"
+                                   @input="sanitizeModalScoreInput()"
+                                   @blur="sanitizeModalScoreInput()"
+                                   class="w-14 bg-zinc-900 text-center border border-zinc-700 font-mono font-black text-sm text-amber-400 rounded py-1 focus:outline-none focus:border-amber-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <button @click="clearSecondaryScoreFromModal()" 
+                            class="py-2.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 text-red-400 font-bold uppercase tracking-wider text-xs rounded transition-colors">
+                        Clear Score (0)
+                    </button>
+                    <button @click="applyScoringFromModal()" 
+                            class="py-2.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black uppercase tracking-wider text-xs rounded transition-colors shadow-md">
+                        Apply & Close
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4"  x-show="modals.discard.show" x-cloak x-transition>
+            <div class="bg-zinc-900 border-2 border-amber-500/30 rounded-lg max-w-sm w-full p-5 text-center shadow-2xl space-y-4">
+                <div class="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center mx-auto text-amber-500 text-xl font-bold">!</div>
+                <div>
+                    <h4 class="text-base font-black uppercase text-zinc-100 tracking-wide">Discard Secondary Mission</h4>
+                    <p class="text-xs text-amber-400 font-bold uppercase mt-1 tracking-wider font-mono" x-text="modals.discard.targetMission"></p>
+                </div>
+                <p class="text-[11px] text-zinc-400 leading-relaxed px-2">Choose when this mission card is being thrown away. Discarding during your tactical deployment planning awards command resource materials.</p>
+                <div class="grid grid-cols-1 gap-2 pt-2">
+                    <button @click="executeDiscardAction(true)" class="w-full py-2.5 bg-zinc-950 hover:bg-zinc-900 border border-amber-500/40 hover:border-amber-500 text-amber-400 font-black uppercase tracking-wider text-xs rounded transition-all">Discard in Command Phase (+1 CP)</button>
+                    <button @click="executeDiscardAction(false)" class="w-full py-2.5 bg-zinc-950 hover:bg-zinc-900 border border-zinc-800 hover:border-zinc-600 text-zinc-300 font-bold uppercase tracking-wider text-xs rounded transition-all">Discard at end of Turn (0 CP)</button>
+                </div>
+                <button @click="modals.discard.show = false" class="text-[10px] uppercase font-bold tracking-widest text-zinc-500 hover:text-zinc-300 transition-colors block mx-auto pt-2">Cancel Action</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Automatic Inline Service Worker registration for offline functionality support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'ca-2026-tracker-v1';
+                    self.addEventListener('install', e => self.skipWaiting());
+                    self.addEventListener('activate', e => e.waitUntil(clients.claim()));
+                    self.addEventListener('fetch', e => {
+                        // Network first, fallback to cached document framework logic if offline
+                        if(e.request.mode === 'navigate') {
+                            e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+                        }
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+            });
+        }
+
+        function scoreTracker() {
+            return {
+                currentPage: 'setup',
+                
+                modals: {
+                    selection: { show: false, activePlayer: 'attacker', targetRound: 1 },
+                    discard: { show: false, activePlayer: '', targetMission: '', contextRound: 1 },
+                    scoring: { show: false, activePlayer: 'attacker', targetMission: '', currentContextRound: 1 },
+                    primaryScoring: { show: false, activePlayer: 'attacker', targetRound: 1, missionName: '', workingState: {} }
+                },
+
+                dispositions: [
+                    "Take and Hold", "Purge the Foe", "Reconnaissance", "Priority Assets", "Disruption"
+                ],
+
+                factionList: [
+                    "Adepta Sororitas", "Adeptus Custodes", "Adeptus Mechanicus", "Aeldari", 
+                    "Astra Militarum", "Black Templars", "Blood Angels", "Chaos Daemons", 
+                    "Chaos Knights", "Chaos Space Marines", "Dark Angels", "Death Guard", 
+                    "Drukhari", "Emperor’s Children", "Genestealer Cults", "Grey Knights", 
+                    "Imperial Agents", "Imperial Knights", "Leagues of Votann", "Necrons", 
+                    "Orks", "Space Marines", "Space Wolves", "T'au Empire", "Thousand Sons", "Tyranids"
+                ],
+
+                fixedOptions: [
+                    "A Grievous Blow", "Assassination", "Bring It Down", "Engage On All Fronts"
+                ],
+
+                secondaryList: [
+                    "A Grievous Blow", "A Tempting Target", "Assassination", "Beacon", 
+                    "Behind Enemy Lines", "Bring It Down", "Burden of Trust", "Centre Ground", 
+                    "Cleanse", "Defend Stronghold", "Display of Might", "Engage On All Fronts", 
+                    "Forward Position", "No Prisoners", "Outflank", "Overwhelming Force", 
+                    "Plunder", "Secure No Man's Land"
+                ],
+
+                primaryMissionsFramework: {
+                    "Battlefield Dominance": {
+                        conditions: [
+                            { text: "BR 1 & 2: Control more objectives than opponent (End of Turn)", type: "switch", valueText: "2 VP", vp: 2, rounds: [1, 2] },
+                            { text: "BR 2 to 5 Base: Objectives controlled (End of Command Phase / BR5 End of Turn)", type: "counter", valueText: "+3 VP each", vp: 3, rounds: [2, 3, 4, 5], group: "hold" },
+                            { text: "BR 2 to 5 Bonus: Objectives controlled excluding Home (IF holding Home Objective)", type: "counter", valueText: "+5 VP each", vp: 5, rounds: [2, 3, 4, 5], group: "hold" }
+                        ],
+                        mutuallyExclusiveGroups: ["hold"]
+                    },
+                    "Determined Acquisition": {
+                        conditions: [
+                            { text: "Any BR: Objectives controlled that you didn't control at start of turn excluding Home (End of Turn)", type: "counter", valueText: "+2 VP each", vp: 2, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5 Base: Objectives controlled (End of Command Phase / BR5 End of Turn)", type: "counter", valueText: "+3 VP each", vp: 3, rounds: [2, 3, 4, 5], group: "hold_choice" },
+                            { text: "BR 2 to 5 Bonus: Objectives controlled within opponent's territory", type: "counter", valueText: "+6 VP each", vp: 6, rounds: [2, 3, 4, 5], group: "hold_choice" }
+                        ],
+                        mutuallyExclusiveGroups: ["hold_choice"]
+                    },
+                    "Immovable Object": {
+                        conditions: [
+                            { text: "Any BR: Control one or more central objectives (End of Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 4: Objectives controlled excluding Home (End of Command Phase)", type: "counter", valueText: "+5 VP each", vp: 5, rounds: [2, 3, 4] },
+                            { text: "BR 5: Objectives controlled excluding Home (End of Turn)", type: "counter", valueText: "+5 VP each", vp: 5, rounds: [5] }
+                        ]
+                    },
+                    "Inescapable Dominion": {
+                        conditions: [
+                            { text: "Any BR: Control three or more objectives (End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5 Condition A: Control two or more objectives (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "5 VP", vp: 5, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5 Condition B: Control more objectives than opponent (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "End of Battle: Control the enemy home objective", type: "switch", valueText: "5 VP", vp: 5, rounds: [5] }
+                        ]
+                    },
+                    "Purge and Secure": {
+                        conditions: [
+                            { text: "Any BR Kill: Destroy 1+ enemy units with friendly unit on objective OR enemy unit started turn on objective (End of Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5 Hold: Objectives controlled excluding Home (End of Command Phase / BR5 End of Turn)", type: "counter", valueText: "+4 VP each", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5 Capture: Control 1+ objectives you didn't control at start of turn excluding Home (End of Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [2, 3, 4, 5] }
+                        ]
+                    },
+                    "Consecrate": {
+                        conditions: [
+                            { text: "Any BR: 1 or 2 objectives are consecrated (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [1, 2, 3, 4, 5], group: "consecrate_group" },
+                            { text: "Any BR: 3 or more objectives are consecrated (End of your Turn)", type: "switch", valueText: "6 VP", vp: 6, rounds: [1, 2, 3, 4, 5], group: "consecrate_group" },
+                            { text: "BR 2 to 5: Control 1+ objectives excluding Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control more objectives than your opponent (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 5 Finality: Enemy home objective has been consecrated (End of Battle)", type: "switch", valueText: "5 VP", vp: 5, rounds: [5] }
+                        ],
+                        mutuallyExclusiveGroups: ["consecrate_group"]
+                    },
+                    "Destroyer's Wrath": {
+                        conditions: [
+                            { text: "Any BR: 1 or more enemy units were destroyed this turn (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control 1+ objectives excluding Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control more objectives than your opponent (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "6 VP", vp: 6, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5: More enemy units destroyed this turn than friendly units lost last turn (End of your Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] }
+                        ]
+                    },
+                    "Meatgrinder": {
+                        conditions: [
+                            { text: "Any BR: Destroyed 1 or more enemy units this turn (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control 1+ objectives other than Home (End of Command Phase)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "Any BR Attrition: Destroyed more enemy units this turn than were destroyed of yours (End of your Turn)", type: "switch", valueText: "5 VP", vp: 5, rounds: [1, 2, 3, 4, 5] },
+                            { text: "Any BR Break: Control the enemy home objective at turn end (End of your Turn)", type: "switch", valueText: "5 VP", vp: 5, rounds: [1, 2, 3, 4, 5] }
+                        ]
+                    },
+                    "Punishment": {
+                        conditions: [
+                            { text: "Any BR: 1 or more condemned enemy units left the battlefield this turn (End of a Turn)", type: "switch", valueText: "5 VP", vp: 5, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control 1+ objectives excluding Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control more objectives than your opponent (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "5 VP", vp: 5, rounds: [2, 3, 4, 5] },
+                            { text: "BR 5 Conquest: You control your opponent's home objective (End of Battle)", type: "switch", valueText: "8 VP", vp: 8, rounds: [5] }
+                        ]
+                    },
+                    "Unstoppable Force": {
+                        conditions: [
+                            { text: "Any BR: 1 or more enemy units were destroyed this turn (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: For each objective you control excluding Home (End of Command Phase / BR5 End of Turn)", type: "counter", valueText: "+4 VP each", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control 1+ objectives you did not control at turn start excluding Home (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [2, 3, 4, 5] },
+                            { text: "BR 5 Dominance: Control 1 or more central objectives (End of Battle)", type: "switch", valueText: "5 VP", vp: 5, rounds: [5] }
+                        ]
+                    },
+                    "Gather Intel": {
+                        conditions: [
+                            { text: "BR 1: Control 1+ central objectives (End of your Turn)", type: "switch", valueText: "6 VP", vp: 6, rounds: [1] },
+                            { text: "BR 2 to 5: Control 1+ objectives excluding Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5: For each friendly unit that extracted intelligence this turn (End of your Turn)", type: "counter", valueText: "+7 VP each", vp: 7, rounds: [2, 3, 4, 5] },
+                            { text: "BR 5 Finality: 3+ of your operation markers are on the battlefield (End of Battle)", type: "switch", valueText: "5 VP", vp: 5, rounds: [5] },
+                            { text: "BR 5 Finality: 1+ of your operation markers is within range of opponent's home objective (End of Battle)", type: "switch", valueText: "5 VP", vp: 5, rounds: [5] }
+                        ]
+                    },
+                    "Reconnaissance Sweep": {
+                        conditions: [
+                            { text: "Any BR: 3 friendly units wholly within 3 different table quarters AND none within 6\" of center (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [1, 2, 3, 4, 5], group: "sweep_quarter" },
+                            { text: "Any BR: 4 friendly units wholly within 4 different table quarters AND none within 6\" of center (End of your Turn)", type: "switch", valueText: "6 VP", vp: 6, rounds: [1, 2, 3, 4, 5], group: "sweep_quarter" },
+                            { text: "Any BR Attrition: For each enemy unit destroyed this turn (End of your Turn)", type: "counter", valueText: "+1 VP each", vp: 1, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control 1+ objectives excluding Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [2, 3, 4, 5] }
+                        ],
+                        mutuallyExclusiveGroups: ["sweep_quarter"]
+                    },
+                    "Search and Scour": {
+                        conditions: [
+                            { text: "Any BR: Control 1+ central objectives (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [1, 2, 3, 4, 5] },
+                            { text: "Any BR Hunters: 1+ enemy units that started turn within a terrain feature were destroyed this turn (End of your Turn)", type: "switch", valueText: "2 VP", vp: 2, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: For each objective you control excluding Home (End of Command Phase / BR5 End of Turn)", type: "counter", valueText: "+4 VP each", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 5 Denial: No enemy units are wholly within your territory (End of Battle)", type: "switch", valueText: "5 VP", vp: 5, rounds: [5] }
+                        ]
+                    },
+                    "Surveil the Foe": {
+                        conditions: [
+                            { text: "Any BR: 1+ enemy units were surveilled this turn, unless each is within range of an objective with 1+ enemy operation markers (End of your Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control 1+ objectives excluding Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control more objectives than your opponent (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5: No enemy operation markers are on the battlefield (End of your Turn)", type: "switch", valueText: "5 VP", vp: 5, rounds: [2, 3, 4, 5] }
+                        ]
+                    },
+                    "Triangulation": {
+                        conditions: [
+                            { text: "BR 2 to 5: Control 1+ objectives excluding Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5 Array: Exactly 1 objective is triangulated by your army (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [2, 3, 4, 5], group: "tri_tier" },
+                            { text: "BR 2 to 5 Array: Exactly 2 objectives are triangulated by your army (End of your Turn)", type: "switch", valueText: "6 VP", vp: 6, rounds: [2, 3, 4, 5], group: "tri_tier" },
+                            { text: "BR 2 to 5 Array: 3 or more objectives are triangulated by your army (End of your Turn)", type: "switch", valueText: "10 VP", vp: 10, rounds: [2, 3, 4, 5], group: "tri_tier" },
+                            { text: "BR 5 Superiority: You control 4 or more objectives (End of Battle)", type: "switch", valueText: "10 VP", vp: 10, rounds: [5] }
+                        ],
+                        mutuallyExclusiveGroups: ["tri_tier"]
+                    },
+                    "Secure Asset": {
+                        conditions: [
+                            { text: "Any BR: A friendly unit secured the asset this turn (End of your Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [1, 2, 3, 4, 5] },
+                            { text: "Any BR: At least one enemy unit that started the turn within range of 1+ central objectives was destroyed (End of your Turn)", type: "switch", valueText: "2 VP", vp: 2, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control one or more objectives excluding your Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control three or more objectives (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] }
+                        ]
+                    },
+                    "Vital Link": {
+                        conditions: [
+                            { text: "Any BR: You control one or more central objectives (End of your Turn)", type: "switch", valueText: "2 VP", vp: 2, rounds: [1, 2, 3, 4, 5], group: "vital_turn" },
+                            { text: "Any BR: For each of your operation markers within range of one of those objectives (End of your Turn)", type: "counter", valueText: "+3 VP each", vp: 3, rounds: [1, 2, 3, 4, 5], group: "vital_turn" },
+                            { text: "BR 2 to 5: You control one or more objectives excluding your Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5], group: "vital_hold" },
+                            { text: "BR 2 to 5: One or more of those objectives is a central objective (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "8 VP", vp: 8, rounds: [2, 3, 4, 5], group: "vital_hold" },
+                            { text: "End of Battle: You control your opponent's home objective (End of Battle)", type: "switch", valueText: "10 VP", vp: 10, rounds: [5] }
+                        ],
+                        mutuallyExclusiveGroups: ["vital_turn", "vital_hold"]
+                    },
+                    "Vanguard Operation": {
+                        conditions: [
+                            { text: "Any BR: A friendly unit performed a vanguard operation this turn (End of your Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [1, 2, 3, 4, 5] },
+                            { text: "Any BR: One or more enemy units were destroyed this turn (End of your Turn)", type: "bold text", valueText: "2 VP", vp: 2, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: You control one or more objectives excluding your Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "End of Battle: You control your opponent's home objective (End of Battle)", type: "switch", valueText: "10 VP", vp: 10, rounds: [5] }
+                        ]
+                    },
+                    "Sabotage": {
+                        conditions: [
+                            { text: "Any BR: For each friendly unit that committed sabotage this turn (End of your Turn)", type: "counter", valueText: "+3 VP each", vp: 3, rounds: [1, 2, 3, 4, 5], group: "sabotage_type" },
+                            { text: "Any BR: For each friendly unit that committed sabotage this turn while within range of 1+ objectives in enemy territory (End of your Turn)", type: "counter", valueText: "+5 VP each", vp: 5, rounds: [1, 2, 3, 4, 5], group: "sabotage_type" },
+                            { text: "BR 2 to 5: You control one or more objectives excluding your Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] }
+                        ],
+                        mutuallyExclusiveGroups: ["sabotage_type"]
+                    },
+                    "Extract Relic": {
+                        conditions: [
+                            { text: "Any BR: A friendly unit performed a sensor sweep this turn (End of your Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [1, 2, 3, 4, 5] },
+                            { text: "Any BR: One or more enemy units that started the turn within range of 1+ objectives are destroyed (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [1, 2, 3, 4, 5] },
+                            { text: "Any BR: Only one opponent's operation marker on field, 1+ of your units are within same terrain area as marker, and no enemy units are within that terrain area (End of your Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: You control one or more objectives excluding your Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "End of Battle: Only one opponent's operation marker on field, 1+ of your units are within same terrain area as marker, and no enemy units are within that terrain area (End of Battle)", type: "switch", valueText: "5 VP", vp: 5, rounds: [5] }
+                        ]
+                    },
+                    "Death Trap": {
+                        conditions: [
+                            { text: "Any BR: For each terrain area trapped this turn (End of your Turn)", type: "counter", valueText: "+2 VP each", vp: 2, rounds: [1, 2, 3, 4, 5], group: "trap_type" },
+                            { text: "Any BR: For each trapped terrain area that is an objective (End of your Turn)", type: "counter", valueText: "+5 VP each", vp: 5, rounds: [1, 2, 3, 4, 5], group: "trap_type" },
+                            { text: "Any BR Kill: At least 1 enemy unit that started turn in a terrain area was destroyed, and that terrain area is trapped (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control 1+ objectives excluding your Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] }
+                        ],
+                        mutuallyExclusiveGroups: ["trap_type"]
+                    },
+                    "Delaying Action": {
+                        conditions: [
+                            { text: "Any BR Kill: For each enemy unit destroyed this turn (End of your Turn)", type: "counter", valueText: "+2 VP each", vp: 2, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control 1+ objectives excluding Home objectives (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "BR 2 to 5 Tempo: Control 1+ central objectives AND 1+ expansion objectives (End of your Turn)", type: "switch", valueText: "3 VP", vp: 3, rounds: [2, 3, 4, 5] }
+                        ]
+                    },
+                    "Smoke and Mirrors": {
+                        conditions: [
+                            { text: "Any BR: For each objective that is a decoy (End of your Turn)", type: "counter", valueText: "+2 VP each", vp: 2, rounds: [1, 2, 3, 4, 5], group: "decoy_type" },
+                            { text: "Any BR: For each decoy objective in your opponent's territory (End of your Turn)", type: "counter", valueText: "+4 VP each", vp: 4, rounds: [1, 2, 3, 4, 5], group: "decoy_type" },
+                            { text: "BR 2 to 5: Control 1+ objectives excluding your Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "End of Battle: At least four objectives are decoys (End of Battle)", type: "switch", valueText: "10 VP", vp: 10, rounds: [5] }
+                        ],
+                        mutuallyExclusiveGroups: ["decoy_type"]
+                    },
+                    "Locate and Deny": {
+                        conditions: [
+                            { text: "Any BR Kill: At least 1 enemy unit that started its turn within range of an objective was destroyed (End of your Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [1, 2, 3, 4, 5] },
+                            { text: "Any BR Hold: Only 1 of your operation markers remains, with 1+ of your units in that terrain and no enemy units there (End of your Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 2 to 5: Control 1+ objectives excluding your Home (End of Command Phase / BR5 End of Turn)", type: "switch", valueText: "4 VP", vp: 4, rounds: [2, 3, 4, 5] },
+                            { text: "End of Battle: Only 1 of your operation markers remains, with 1+ of your units in that terrain and no enemy units there (End of Battle)", type: "switch", valueText: "5 VP", vp: 5, rounds: [5] }
+                        ]
+                    },
+                    "Outmaneuvre": {
+                        conditions: [
+                            { text: "Any BR Breacher: You control the enemy home objective (End of your Turn)", type: "switch", valueText: "10 VP", vp: 10, rounds: [1, 2, 3, 4, 5] },
+                            { text: "BR 1: For each objective you control excluding your Home (End of your Turn)", type: "counter", valueText: "+4 VP each", vp: 4, rounds: [1] },
+                            { text: "BR 2 & 3: For each objective you control excluding your Home (End of Command Phase)", type: "counter", valueText: "+5 VP each", vp: 5, rounds: [2, 3] },
+                            { text: "BR 4 & 5: For each objective you control excluding your Home (End of your Turn / BR5 End of Turn)", type: "counter", valueText: "+6 VP each", vp: 6, rounds: [4, 5] }
+                        ]
+                    }
+                },
+
+                matrix: {
+                    "Take and Hold": {
+                        "Take and Hold": "Battlefield Dominance", "Purge the Foe": "Immovable Object",
+                        "Reconnaissance": "Purge and Secure", "Priority Assets": "Inescapable Dominion",
+                        "Disruption": "Determined Acquisition"
+                    },
+                    "Purge the Foe": {
+                        "Take and Hold": "Unstoppable Force", "Purge the Foe": "Meatgrinder",
+                        "Reconnaissance": "Consecrate", "Priority Assets": "Destroyer's Wrath",
+                        "Disruption": "Punishment"
+                    },
+                    "Reconnaissance": {
+                        "Take and Hold": "Reconnaissance Sweep", "Purge the Foe": "Triangulation",
+                        "Reconnaissance": "Gather Intel", "Priority Assets": "Search and Scour",
+                        "Disruption": "Surveil the Foe"
+                    },
+                    "Priority Assets": {
+                        "Take and Hold": "Secure Asset", "Purge the Foe": "Vital Link",
+                        "Reconnaissance": "Vanguard Operation", "Priority Assets": "Sabotage",
+                        "Disruption": "Extract Relic"
+                    },
+                    "Disruption": {
+                        "Take and Hold": "Death Trap", "Purge the Foe": "Delaying Action",
+                        "Reconnaissance": "Smoke and Mirrors", "Priority Assets": "Locate and Deny",
+                        "Disruption": "Outmaneuvre"
+                    }
+                },
+
+                scoringConditionsMatrix: {
+                    "A Grievous Blow": [
+                        { text: "Fixed: Enemy unit with starting strength 13+ destroyed", vp: 4, type: "Fixed" },
+                        { text: "Tactical: Enemy unit with starting strength 13+ destroyed", vp: 5, type: "Tactical" }
+                    ],
+                    "A Tempting Target": [
+                        { text: "Control the designated Tempting Target objective at turn end", vp: 5, type: "Tactical" }
+                    ],
+                    "Assassination": [
+                        { text: "Fixed: Enemy Character model destroyed", vp: 4, type: "Fixed" },
+                        { text: "Tactical: One or more enemy CHARACTER models were destroyed this turn", vp: 5, type: "Tactical" },
+                        { text: "Tactical: All enemy CHARACTER models have been destroyed during the battle", vp: 5, type: "Tactical" }
+                    ],
+                    "Beacon": [
+                        { text: "Beacon unit is on the field & outside your deployment zone", vp: 3, type: "Tactical" },
+                        { text: "Beacon unit is on the field & outside your entire territory", vp: 5, type: "Tactical" }
+                    ],
+                    "Behind Enemy Lines": [
+                        { text: "Tactical: 1 Friendly unit (excl. Aircraft/Battle-shocked) wholly within enemy zone", vp: 3, type: "Tactical" },
+                        { text: "Tactical: 2+ Friendly units (excl. Aircraft/Battle-shocked) wholly within enemy zone", vp: 5, type: "Tactical" }
+                    ],
+                    "Bring It Down": [
+                        { text: "Fixed: Per enemy model with 10+ Wounds destroyed", vp: 4, type: "Fixed" },
+                        { text: "Tactical: Per enemy model with 10+ Wounds destroyed", vp: 5, type: "Tactical" }
+                    ],
+                    "Burden of Trust": [
+                        { text: "Tactical: 1 objective guarded by your army", vp: 2, type: "Tactical" },
+                        { text: "Tactical: 2 objectives guarded by your army", vp: 4, type: "Tactical" },
+                        { text: "Tactical: 3+ objectives guarded by your army", vp: 5, type: "Tactical" }
+                    ],
+                    "Centre Ground": [
+                        { text: "Friendly unit within 3\" of center, no enemy within 3\"", vp: 3, type: "Tactical" },
+                        { text: "Friendly unit within 3\" of center, no enemy within 6\"", vp: 5, type: "Tactical" }
+                    ],
+                    "Cleanse": [
+                        { text: "One objective cleansed by an action this turn", vp: 2, type: "Tactical" },
+                        { text: "Two or more objectives cleansed by actions this turn", vp: 5, type: "Tactical" }
+                    ],
+                    "Defend Stronghold": [
+                        { text: "Control your home objective", vp: 3, type: "Tactical" },
+                        { text: "Control home objective AND no enemies in your deployment zone", vp: 5, type: "Tactical" }
+                    ],
+                    "Display of Might": [
+                        { text: "End of YOUR turn: More friendly than enemy units in No Man's Land", vp: 2, type: "Tactical" },
+                        { text: "End of OPPONENT turn: More friendly than enemy units in No Man's Land", vp: 5, type: "Tactical" }
+                    ],
+                    "Engage On All Fronts": [
+                        { text: "Fixed: Present in table quarters (Min 3)", vp: 2, type: "Fixed" },
+                        { text: "Tactical: Present in 3 table quarters", vp: 3, type: "Tactical" },
+                        { text: "Tactical: Present in 4 table quarters", vp: 5, type: "Tactical" }
+                    ],
+                    "Forward Position": [
+                        { text: "Control opponent's home objective or every expansion objective", vp: 5, type: "Tactical" }
+                    ],
+                    "No Prisoners": [
+                        { text: "1 enemy unit destroyed this turn", vp: 2, type: "Tactical" },
+                        { text: "2 enemy units destroyed this turn", vp: 4, type: "Tactical" },
+                        { text: "3+ enemy units destroyed this turn", vp: 5, type: "Tactical" }
+                    ],
+                    "Outflank": [
+                        { text: "1+ units within 6\" of a table edge outside your territory", vp: 3, type: "Tactical" },
+                        { text: "2+ units within 6\" of opposite edges (1+ outside territory)", vp: 5, type: "Tactical" }
+                    ],
+                    "Overwhelming Force": [
+                        { text: "1 enemy unit on an objective destroyed this turn", vp: 3, type: "Tactical" },
+                        { text: "2+ enemy units on objectives destroyed this turn", vp: 5, type: "Tactical" }
+                    ],
+                    "Plunder": [
+                        { text: "A terrain feature was successfully plundered this turn", vp: 5, type: "Tactical" }
+                    ],
+                    "Secure No Man's Land": [
+                        { text: "Control 2+ objectives within No Man's Land", vp: 5, type: "Tactical" }
+                    ]
+                },
+
+                players: {
+                    attacker: {
+                        name: '', army: '', disposition: 'Take and Hold', selectedMission: '', missionType: 'Tactical',
+                        fixedSelections: [], primaryTurns: [0, 0, 0, 0, 0], primaryRawTurns: {1: {}, 2: {}, 3: {}, 4: {}, 5: {}}, primary: 0,
+                        selectedSecondaries: [], drawnInRound: {}, discardedSecondaries: [], resolvedInRound: {}, 
+                        secondaryScores: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} }, cp: 0, battleReady: true
+                    },
+                    defender: {
+                        name: '', army: '', disposition: 'Take and Hold', selectedMission: '', missionType: 'Tactical',
+                        fixedSelections: [], primaryTurns: [0, 0, 0, 0, 0], primaryRawTurns: {1: {}, 2: {}, 3: {}, 4: {}, 5: {}}, primary: 0,
+                        selectedSecondaries: [], drawnInRound: {}, discardedSecondaries: [], resolvedInRound: {}, 
+                        secondaryScores: { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} }, cp: 0, battleReady: true
+                    }
+                },
+
+                init() {
+                    const cachedState = localStorage.getItem('ca_2026_tracker_cache');
+                    if (cachedState) {
+                        try {
+                            const parsed = JSON.parse(cachedState);
+                            this.currentPage = parsed.currentPage || 'setup';
+                            if (parsed.players) this.players = parsed.players;
+                        } catch (e) {
+                            console.error("Error parsing local state configuration storage cache", e);
+                        }
+                    }
+                },
+
+                saveToStorage() {
+                    localStorage.setItem('ca_2026_tracker_cache', JSON.stringify({
+                        currentPage: this.currentPage,
+                        players: this.players
+                    }));
+                },
+
+                setMissionType(playerKey, type) {
+                    this.players[playerKey].missionType = type;
+                    this.players[playerKey].fixedSelections = [];
+                    this.players[playerKey].selectedSecondaries = [];
+                    this.players[playerKey].drawnInRound = {};
+                    this.players[playerKey].resolvedInRound = {};
+                    this.players[playerKey].discardedSecondaries = [];
+                    this.players[playerKey].secondaryScores = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+                    this.saveToStorage();
+                },
+
+                validateFixedLimit(playerKey) {
+                    if (this.players[playerKey].fixedSelections.length > 2) {
+                        this.players[playerKey].fixedSelections.pop();
+                    }
+                },
+
+                canStartMatch() {
+                    for (let p of ['attacker', 'defender']) {
+                        if (!this.players[p].army) return false;
+                        if (this.players[p].missionType === 'Fixed' && this.players[p].fixedSelections.length !== 2) return false;
+                    }
+                    return true;
+                },
+
+                adjustCP(playerKey, amount) {
+                    this.players[playerKey].cp = Math.max(0, this.players[playerKey].cp + amount);
+                    this.saveToStorage();
+                },
+
+                openPrimaryScoringModal(playerKey, roundNum) {
+                    let p = this.players[playerKey];
+                    this.modals.primaryScoring.activePlayer = playerKey;
+                    this.modals.primaryScoring.targetRound = roundNum;
+                    this.modals.primaryScoring.missionName = p.selectedMission;
+                    
+                    let savedState = p.primaryRawTurns[roundNum] || {};
+                    let conditions = this.getPrimaryConditionsForCurrentSelection();
+                    
+                    this.modals.primaryScoring.workingState = {};
+                    conditions.forEach((c, index) => {
+                        this.modals.primaryScoring.workingState[index] = savedState[index] !== undefined ? savedState[index] : (c.type === 'switch' ? false : 0);
+                    });
+
+                    this.modals.primaryScoring.show = true;
+                },
+
+                getPrimaryConditionsForCurrentSelection() {
+                    let mission = this.modals.primaryScoring.missionName;
+                    let framework = this.primaryMissionsFramework[mission];
+                    if (!framework) return [];
+                    
+                    let roundNum = this.modals.primaryScoring.targetRound;
+                    return framework.conditions.filter(c => c.rounds.includes(roundNum));
+                },
+
+                togglePrimarySwitch(index) {
+                    let state = this.modals.primaryScoring.workingState;
+                    state[index] = !state[index];
+                    this.evaluatePrimaryMutualExclusions(index);
+                },
+
+                adjustPrimaryCounter(index, direction) {
+                    let state = this.modals.primaryScoring.workingState;
+                    let current = state[index] || 0;
+                    state[index] = Math.max(0, current + direction);
+                    if (direction > 0) {
+                        this.evaluatePrimaryMutualExclusions(index);
+                    }
+                },
+
+                evaluatePrimaryMutualExclusions(triggeredIndex) {
+                    let mission = this.modals.primaryScoring.missionName;
+                    let framework = this.primaryMissionsFramework[mission];
+                    let activeConditions = this.getPrimaryConditionsForCurrentSelection();
+                    let triggeredCond = activeConditions[triggeredIndex];
+                    
+                    if (!framework || !triggeredCond || !triggeredCond.group) return;
+
+                    activeConditions.forEach((c, index) => {
+                        if (index !== triggeredIndex && c.group === triggeredCond.group) {
+                            this.modals.primaryScoring.workingState[index] = c.type === 'switch' ? false : 0;
+                        }
+                    });
+                },
+
+                calculateLivePrimaryModalVP() {
+                    let activeConditions = this.getPrimaryConditionsForCurrentSelection();
+                    let state = this.modals.primaryScoring.workingState;
+                    let roundTotal = 0;
+
+                    activeConditions.forEach((c, index) => {
+                        let value = state[index];
+                        if (c.type === 'switch' && value === true) {
+                            roundTotal += c.vp;
+                        } else if (c.type === 'counter' && value > 0) {
+                            roundTotal += (value * c.vp);
+                        }
+                    });
+
+                    return Math.min(15, roundTotal);
+                },
+
+                applyPrimaryScoringModal() {
+                    let pKey = this.modals.primaryScoring.activePlayer;
+                    let rNum = this.modals.primaryScoring.targetRound;
+                    let finalRoundVP = this.calculateLivePrimaryModalVP();
+                    
+                    this.players[pKey].primaryRawTurns[rNum] = { ...this.modals.primaryScoring.workingState };
+                    this.players[pKey].primaryTurns[rNum - 1] = finalRoundVP;
+                    
+                    let sum = this.players[pKey].primaryTurns.reduce((a, b) => (Number(b) || 0) + a, 0);
+                    this.players[pKey].primary = Math.min(sum, 50);
+
+                    this.modals.primaryScoring.show = false;
+                    this.saveToStorage();
+                },
+
+                openSelectionModal(playerKey, roundNum) {
+                    this.modals.selection.activePlayer = playerKey;
+                    this.modals.selection.targetRound = roundNum;
+                    this.modals.selection.show = true;
+                },
+
+                filteredSecondaryListForModal() {
+                    let pKey = this.modals.selection.activePlayer;
+                    let targetRoundNum = this.modals.selection.targetRound;
+                    let p = this.players[pKey];
+
+                    return this.secondaryList.filter(m => {
+                        let originRound = p.drawnInRound[m];
+                        if (!originRound || originRound === targetRoundNum) return true;
+                        return false;
+                    });
+                },
+
+                isMissionCheckedInModal(missionName) {
+                    let p = this.modals.selection.activePlayer;
+                    return this.players[p].selectedSecondaries.includes(missionName);
+                },
+
+                toggleMissionSelectionInModal(missionName) {
+                    let p = this.modals.selection.activePlayer;
+                    let r = this.modals.selection.targetRound;
+                    let list = this.players[p].selectedSecondaries;
+                    
+                    if (list.includes(missionName)) {
+                        if (this.players[p].drawnInRound[missionName] === r) {
+                            this.players[p].selectedSecondaries = list.filter(item => item !== missionName);
+                            delete this.players[p].drawnInRound[missionName];
+                            delete this.players[p].resolvedInRound[missionName];
+                            [1,2,3,4,5].forEach(round => {
+                                if(this.players[p].secondaryScores[round][missionName] !== undefined) {
+                                    delete this.players[p].secondaryScores[round][missionName];
+                                }
+                            });
+                        }
+                    } else {
+                        this.players[p].selectedSecondaries.push(missionName);
+                        this.players[p].drawnInRound[missionName] = r;
+                    }
+                },
+
+                drawRandomTacticalMission(playerKey, roundNum) {
+                    let p = this.players[playerKey];
+                    let eligiblePool = this.secondaryList.filter(m => !p.selectedSecondaries.includes(m) && !p.discardedSecondaries.includes(m));
+
+                    if (eligiblePool.length === 0) {
+                        alert("The Tactical Mission Deck is completely empty or fully assigned!");
+                        return;
+                    }
+
+                    let randIndex = Math.floor(Math.random() * eligiblePool.length);
+                    let rolledMission = eligiblePool[randIndex];
+                    p.selectedSecondaries.push(rolledMission);
+                    p.drawnInRound[rolledMission] = roundNum;
+                    this.saveToStorage();
+                },
+
+                getMissionsForRound(playerKey, roundNum) {
+                    let p = this.players[playerKey];
+                    if (p.missionType === 'Fixed') return p.selectedSecondaries; 
+                    
+                    return p.selectedSecondaries.filter(m => {
+                        let originRound = p.drawnInRound[m];
+                        let resolutionRound = p.resolvedInRound[m];
+                        if (!originRound || originRound > roundNum) return false;
+                        if (resolutionRound && resolutionRound < roundNum) return false;
+                        return true; 
+                    });
+                },
+
+                getDrawnCountForRound(playerKey, roundNum) {
+                    let p = this.players[playerKey];
+                    if (p.missionType === 'Fixed') return p.selectedSecondaries.length;
+                    return p.selectedSecondaries.filter(m => p.drawnInRound[m] === roundNum).length;
+                },
+
+                isScoredInRound(playerKey, missionName, roundNum) {
+                    return (this.players[playerKey].secondaryScores[roundNum]?.[missionName] || 0) > 0;
+                },
+
+                getFixedMissionTotalScore(playerKey, missionName) {
+                    let p = this.players[playerKey];
+                    let total = 0;
+                    for (let r = 1; r <= 5; r++) {
+                        total += (p.secondaryScores[r]?.[missionName] || 0);
+                    }
+                    return Math.min(20, total); 
+                },
+
+                openScoringModal(playerKey, missionName, contextRound) {
+                    this.modals.scoring.activePlayer = playerKey;
+                    this.modals.scoring.targetMission = missionName;
+                    this.modals.scoring.currentContextRound = contextRound;
+                    
+                    if (!this.players[playerKey].secondaryScores[contextRound]) this.players[playerKey].secondaryScores[contextRound] = {};
+                    if (this.players[playerKey].secondaryScores[contextRound][missionName] === undefined) this.players[playerKey].secondaryScores[contextRound][missionName] = 0;
+                    this.modals.scoring.show = true;
+                },
+
+                getActiveMissionConditions() {
+                    let mission = this.modals.scoring.targetMission;
+                    let pKey = this.modals.scoring.activePlayer;
+                    if (!pKey) return [];
+                    
+                    let archetype = this.players[pKey].missionType; 
+                    let conditions = this.scoringConditionsMatrix[mission] || [];
+                    
+                    if (archetype === 'Tactical') return conditions.filter(c => c.type !== 'Fixed');
+                    else if (archetype === 'Fixed') return conditions.filter(c => c.type === 'Fixed');
+                    return conditions;
+                },
+
+                incrementFixedScore(playerKey, missionName, direction) {
+                    let p = this.players[playerKey];
+                    let r = this.modals.scoring.currentContextRound;
+                    let currentRoundScore = p.secondaryScores[r]?.[missionName] || 0;
+                    
+                    let conditions = this.scoringConditionsMatrix[missionName] || [];
+                    let fixedCond = conditions.find(c => c.type === 'Fixed');
+                    let step = fixedCond ? fixedCond.vp : 4;
+
+                    let totalFromOtherRounds = 0;
+                    for (let i = 1; i <= 5; i++) {
+                        if (i !== r) totalFromOtherRounds += (p.secondaryScores[i]?.[missionName] || 0);
+                    }
+
+                    let newRoundScore = currentRoundScore + (direction * step);
+                    let maxAllowedForRound = Math.max(0, 20 - totalFromOtherRounds);
+                    p.secondaryScores[r][missionName] = Math.max(0, Math.min(maxAllowedForRound, newRoundScore));
+                },
+
+                setSecondaryScorePreset(vpValue) {
+                    let p = this.modals.scoring.activePlayer;
+                    let m = this.modals.scoring.targetMission;
+                    let r = this.modals.scoring.currentContextRound;
+                    let cap = this.players[p].missionType === 'Fixed' ? 20 : 5; 
+                    this.players[p].secondaryScores[r][m] = Math.min(cap, vpValue);
+                },
+
+                adjustSecondaryScoreFromModal(amount) {
+                    let p = this.modals.scoring.activePlayer;
+                    let m = this.modals.scoring.targetMission;
+                    let r = this.modals.scoring.currentContextRound;
+                    let current = this.players[p].secondaryScores[r][m] || 0;
+
+                    let totalFromOtherRounds = 0;
+                    if (this.players[p].missionType === 'Fixed') {
+                        for (let i = 1; i <= 5; i++) {
+                            if (i !== r) totalFromOtherRounds += (this.players[p].secondaryScores[i]?.[m] || 0);
+                        }
+                    }
+
+                    let maxAllowed = (this.players[p].missionType === 'Fixed' ? 20 : 5) - totalFromOtherRounds;
+                    this.players[p].secondaryScores[r][m] = Math.max(0, Math.min(maxAllowed, current + amount));
+                },
+
+                clearSecondaryScoreFromModal() {
+                    let p = this.modals.scoring.activePlayer;
+                    let m = this.modals.scoring.targetMission;
+                    let r = this.modals.scoring.currentContextRound;
+                    this.players[p].secondaryScores[r][m] = 0;
+                    delete this.players[p].resolvedInRound[m]; 
+                    this.modals.scoring.show = false;
+                    this.saveToStorage();
+                },
+
+                sanitizeModalScoreInput() {
+                    let p = this.modals.scoring.activePlayer;
+                    let m = this.modals.scoring.targetMission;
+                    let r = this.modals.scoring.currentContextRound;
+                    let val = Number(this.players[p].secondaryScores[r][m]);
+                    
+                    let totalFromOtherRounds = 0;
+                    if (this.players[p].missionType === 'Fixed') {
+                        for (let i = 1; i <= 5; i++) {
+                            if (i !== r) totalFromOtherRounds += (this.players[p].secondaryScores[i]?.[m] || 0);
+                        }
+                    }
+                    let maxAllowed = (this.players[p].missionType === 'Fixed' ? 20 : 5) - totalFromOtherRounds;
+
+                    if (isNaN(val) || val < 0) this.players[p].secondaryScores[r][m] = 0;
+                    if (val > maxAllowed) this.players[p].secondaryScores[r][m] = maxAllowed;
+                },
+
+                applyScoringFromModal() {
+                    let p = this.modals.scoring.activePlayer;
+                    let m = this.modals.scoring.targetMission;
+                    let r = this.modals.scoring.currentContextRound;
+
+                    if (this.players[p].secondaryScores[r][m] > 0 && this.players[p].missionType === 'Tactical') {
+                        this.players[p].resolvedInRound[m] = r;
+                    } else if (this.players[p].secondaryScores[r][m] === 0 && this.players[p].missionType === 'Tactical') {
+                        delete this.players[p].resolvedInRound[m];
+                    }
+                    this.modals.scoring.show = false;
+                    this.saveToStorage();
+                },
+
+                triggerDiscardFlow(playerKey, missionName, contextRound) {
+                    this.modals.discard.activePlayer = playerKey;
+                    this.modals.discard.targetMission = missionName;
+                    this.modals.discard.contextRound = contextRound;
+                    this.modals.discard.show = true;
+                },
+
+                executeDiscardAction(isCommandPhase) {
+                    let pKey = this.modals.discard.activePlayer;
+                    let target = this.modals.discard.targetMission;
+                    let r = this.modals.discard.contextRound;
+                    let player = this.players[pKey];
+
+                    if (isCommandPhase) player.cp += 1;
+                    if (!player.discardedSecondaries.includes(target)) {
+                        player.discardedSecondaries.push(target);
+                        player.resolvedInRound[target] = r; 
+                    }
+                    this.modals.discard.show = false;
+                    this.saveToStorage();
+                },
+
+                getCalculatedMission(playerKey) {
+                    let opponentKey = playerKey === 'attacker' ? 'defender' : 'attacker';
+                    let yourDisp = this.players[playerKey].disposition;
+                    let oppDisp = this.players[opponentKey].disposition;
+                    return this.matrix[yourDisp]?.[oppDisp] || "Unknown Mission Matchup";
+                },
+
+                lockInMatch() {
+                    if (!this.canStartMatch()) return;
+                    ['attacker', 'defender'].forEach(p => {
+                        this.players[p].selectedMission = this.getCalculatedMission(p);
+                        if (this.players[p].missionType === 'Fixed') {
+                            this.players[p].selectedSecondaries = [...this.players[p].fixedSelections];
+                            this.players[p].fixedSelections.forEach(m => {
+                                this.players[p].drawnInRound[m] = 1; 
+                            });
+                        }
+                    });
+                    this.currentPage = 'tracker';
+                    this.saveToStorage();
+                },
+
+                calculateSecondaryTotal(playerKey) {
+                    let p = this.players[playerKey];
+                    let totalAccumulated = p.selectedSecondaries.reduce((sum, currentMission) => {
+                        let missionSum = 0;
+                        for (let r = 1; r <= 5; r++) {
+                            missionSum += (p.secondaryScores[r]?.[currentMission] || 0);
+                        }
+                        return sum + (p.missionType === 'Fixed' ? Math.min(20, missionSum) : missionSum);
+                    }, 0);
+
+                    return Math.min(totalAccumulated, 40); 
+                },
+
+                calculateTotal(playerKey) {
+                    let p = this.players[playerKey];
+                    let actualSecondary = this.calculateSecondaryTotal(playerKey);
+                    let total = p.primary + actualSecondary + (p.battleReady ? 10 : 0);
+                    return Math.min(total, 100);
+                },
+
+                resetScores() {
+                    if (confirm("Reset current scores and return to setup?")) {
+                        ['attacker', 'defender'].forEach(p => {
+                            this.players[p].name = '';
+                            this.players[p].primaryTurns = [0, 0, 0, 0, 0];
+                            this.players[p].primaryRawTurns = {1: {}, 2: {}, 3: {}, 4: {}, 5: {}};
+                            this.players[p].primary = 0;
+                            this.players[p].selectedSecondaries = [];
+                            this.players[p].drawnInRound = {};
+                            this.players[p].discardedSecondaries = [];
+                            this.players[p].resolvedInRound = {};
+                            this.players[p].fixedSelections = [];
+                            this.players[p].missionType = 'Tactical';
+                            this.players[p].secondaryScores = { 1: {}, 2: {}, 3: {}, 4: {}, 5: {} };
+                            this.players[p].cp = 0;
+                            this.players[p].battleReady = true;
+                        });
+                        this.currentPage = 'setup';
+                        localStorage.removeItem('ca_2026_tracker_cache');
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
+
