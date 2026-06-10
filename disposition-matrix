@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warhammer 40K 11th Edition Force Disposition Matrix</title>
+    <style>
+        :root {
+            --bg-dark: #0a0f14;
+            --panel-bg: #121a22;
+            --border-color: #243545;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --faction-highlight: #38bdf8;
+            --btn-active-blue: #1d4ed8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 2rem;
+            line-height: 1.5;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #f1f5f9;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (min-width: 1024px) {
+            .main-container {
+                grid-template-columns: 1fr 1fr;
+            }
+            .matrix-section {
+                grid-column: span 2;
+            }
+        }
+
+        .faction-panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.25rem;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-placeholder {
+            width: 40px;
+            height: 32px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.75rem;
+            color: var(--faction-highlight);
+            border: 1px solid var(--faction-highlight);
+        }
+
+        .category-toggle-container {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.55rem 0.4rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.74rem;
+            letter-spacing: 1px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 0;
+        }
+
+        .toggle-btn:hover {
+            border-color: var(--text-main);
+            color: var(--text-main);
+        }
+
+        .toggle-btn.active {
+            background-color: var(--btn-active-blue);
+            border-color: var(--faction-highlight);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        select {
+            width: 100%;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:focus {
+            border-color: var(--faction-highlight);
+        }
+
+        .dp-counter {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: bold;
+            margin-left: auto;
+        }
+
+        .dp-under { background-color: rgba(34, 197, 94, 0.2); color: var(--accent-green); }
+        .dp-max { background-color: rgba(56, 189, 248, 0.2); color: var(--faction-highlight); }
+
+        .detachment-list {
+            display: grid;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            max-height: 340px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .detachment-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .detachment-item:hover:not(.disabled) {
+            border-color: var(--text-muted);
+        }
+
+        .detachment-item.selected {
+            border-color: var(--faction-highlight);
+            background-color: rgba(56, 189, 248, 0.05);
+        }
+
+        .detachment-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .detachment-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detachment-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .detachment-source {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.15rem;
+        }
+        .source-chapter { color: var(--faction-highlight); }
+        .source-codex { color: #e2e8f0; opacity: 0.6; }
+
+        .disposition-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .disp-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .disp-purge { background-color: #ef4444; }
+        .disp-priority { background-color: #f59e0b; }
+        .disp-disruption { background-color: #a855f7; }
+        .disp-recon { background-color: #06b6d4; }
+        .disp-take { background-color: #10b981; }
+
+        .dp-badge {
+            background-color: var(--border-color);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .matrix-section {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .matrix-legend {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .force-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 900px) {
+            .force-summary-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .force-summary-panel {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .force-summary-panel h3 {
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+            color: var(--text-main);
+        }
+
+        .matrix-choice-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (min-width: 900px) {
+            .matrix-choice-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .matrix-choice-panel {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .matrix-choice-panel h3 {
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chip-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.75rem;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.3rem 0.55rem;
+            border-radius: 999px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .matchup-card {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            background: linear-gradient(180deg, rgba(18, 26, 34, 0.95), rgba(10, 15, 20, 0.98));
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            border-radius: 14px;
+            padding: 1.25rem;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .matchup-card-topline {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .matchup-card-main {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        @media (max-width: 720px) {
+            .matchup-card-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .matchup-side {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            min-height: 120px;
+        }
+
+        .matchup-side-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+            font-weight: 700;
+        }
+
+        .matchup-side-title {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.35rem;
+        }
+
+        .matchup-vs {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--faction-highlight);
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .matchup-result {
+            background: rgba(56, 189, 248, 0.08);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .matchup-result-title {
+            font-size: 1.25rem;
+            font-weight: 900;
+            color: var(--text-main);
+            margin-bottom: 0.4rem;
+        }
+
+        .matchup-result-subtitle {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .matchup-empty {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        .selected-deployment-list {
+            display: grid;
+            gap: 0.5rem;
+        }
+
+        .disposition-matrix {
+            display: grid;
+            grid-template-columns: 180px repeat(5, minmax(0, 1fr));
+            gap: 0.5rem;
+            align-items: stretch;
+        }
+
+        .matrix-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.85rem;
+            min-height: 96px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .matrix-card:hover {
+            transform: translateY(-1px);
+            border-color: var(--text-muted);
+        }
+
+        .matrix-card.header-card {
+            background: rgba(56, 189, 248, 0.08);
+            border-color: rgba(56, 189, 248, 0.35);
+        }
+
+        .matrix-card.row-header {
+            background: rgba(56, 189, 248, 0.06);
+            border-color: rgba(56, 189, 248, 0.25);
+        }
+
+        .matrix-card.cell-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .matrix-card.cell-card.active-row,
+        .matrix-card.cell-card.active-column {
+            border-color: rgba(56, 189, 248, 0.55);
+            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.18);
+        }
+
+        .matrix-card.cell-card.active-match {
+            border-color: var(--faction-highlight);
+            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.25), 0 0 24px rgba(56, 189, 248, 0.08);
+        }
+
+        .matrix-card .matrix-disposition {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+            font-weight: 700;
+        }
+
+        .matrix-card .matrix-card-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
+
+        .matrix-card .matrix-card-subtitle {
+            margin-top: 0.35rem;
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .matrix-card.mirror-card .matrix-card-subtitle {
+            color: var(--faction-highlight);
+        }
+
+        .matrix-card.corner-card {
+            background: linear-gradient(135deg, rgba(29, 78, 216, 0.18), rgba(15, 23, 42, 0.95));
+            border-style: dashed;
+        }
+
+        .matrix-card.corner-card .matrix-card-title {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .matrix-card.corner-card .matrix-card-subtitle {
+            color: var(--text-main);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        .matrix-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .matrix-table th, .matrix-table td {
+            border: 1px solid var(--border-color);
+            padding: 1rem;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        .matrix-table th {
+            background-color: var(--bg-dark);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+        }
+
+        .matrix-role {
+            font-weight: bold;
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .role-attacker { background-color: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+        .role-defender { background-color: rgba(56, 189, 248, 0.2); color: var(--faction-highlight); }
+
+        .summary-block {
+            background-color: var(--bg-dark);
+            padding: 0.5rem 0.75rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>WH40k 11th Edition Force Disposition Matrix</h1>
+        <p class="subtitle">Multi-Faction Detachment Configuration Engine (With Cross-Codex Synergies)</p>
+    </header>
+
+    <div class="main-container">
+        <!-- ROSTER PANEL 1 -->
+        <div class="faction-panel" id="panel-1">
+            <div class="panel-title">
+                <div class="logo-placeholder" id="logo-1">F1</div>
+                <h2>Combat Detachment Force A</h2>
+                <span class="dp-counter dp-under" id="dp-count-1">0 / 3 DP</span>
+            </div>
+            
+            <label>1. Select Grand Category</label>
+            <div class="category-toggle-container">
+                <button type="button" class="toggle-btn" id="btn-imperium-1" onclick="switchCategory(1, 'imperium')">Imperium</button>
+                <button type="button" class="toggle-btn" id="btn-space-marines-1" onclick="switchCategory(1, 'space_marines')">Space Marines</button>
+                <button type="button" class="toggle-btn" id="btn-chaos-1" onclick="switchCategory(1, 'chaos')">Chaos</button>
+                <button type="button" class="toggle-btn" id="btn-xenos-1" onclick="switchCategory(1, 'xenos')">Xenos</button>
+            </div>
+
+            <div class="form-group">
+                <label for="army-select-1">2. Select Specific Faction</label>
+                <select id="army-select-1" onchange="loadActiveDeployments(1)" disabled>
+                    <option value="">-- Choose Category First --</option>
+                </select>
+            </div>
+
+            <label>Available Deployments (Max 3 DP)</label>
+            <div class="detachment-list" id="detachment-list-1">
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Select a grand category and sub-faction above...</p>
+            </div>
+        </div>
+
+        <!-- ROSTER PANEL 2 -->
+        <div class="faction-panel" id="panel-2">
+            <div class="panel-title">
+                <div class="logo-placeholder" id="logo-2">F2</div>
+                <h2>Combat Detachment Force B</h2>
+                <span class="dp-counter dp-under" id="dp-count-2">0 / 3 DP</span>
+            </div>
+            
+            <label>1. Select Grand Category</label>
+            <div class="category-toggle-container">
+                <button type="button" class="toggle-btn" id="btn-imperium-2" onclick="switchCategory(2, 'imperium')">Imperium</button>
+                <button type="button" class="toggle-btn" id="btn-space-marines-2" onclick="switchCategory(2, 'space_marines')">Space Marines</button>
+                <button type="button" class="toggle-btn" id="btn-chaos-2" onclick="switchCategory(2, 'chaos')">Chaos</button>
+                <button type="button" class="toggle-btn" id="btn-xenos-2" onclick="switchCategory(2, 'xenos')">Xenos</button>
+            </div>
+
+            <div class="form-group">
+                <label for="army-select-2">2. Select Specific Faction</label>
+                <select id="army-select-2" onchange="loadActiveDeployments(2)" disabled>
+                    <option value="">-- Choose Category First --</option>
+                </select>
+            </div>
+
+            <label>Available Deployments (Max 3 DP)</label>
+            <div class="detachment-list" id="detachment-list-2">
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Select a grand category and sub-faction above...</p>
+            </div>
+        </div>
+
+        <!-- ENGAGEMENT MATRIX SECTION -->
+        <div class="matrix-section">
+            <div class="panel-title">
+                <h2>Tactical Engagement Matrix Breakdown</h2>
+            </div>
+
+            <div class="matrix-legend">
+                <span>▼ You Play</span>
+                <span>▶ Opponent Plays</span>
+            </div>
+
+            <div class="force-summary-grid">
+                <div class="force-summary-panel">
+                    <h3 id="attacker-faction-name">None Loaded</h3>
+                    <div class="selected-deployment-list" id="attacker-matrix-content">
+                        <p style="color: var(--text-muted);">Awaiting force customization deployment data...</p>
+                    </div>
+                </div>
+                <div class="force-summary-panel">
+                    <h3 id="defender-faction-name">None Loaded</h3>
+                    <div class="selected-deployment-list" id="defender-matrix-content">
+                        <p style="color: var(--text-muted);">Awaiting force customization deployment data...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="matrix-choice-grid">
+                <div class="matrix-choice-panel">
+                    <h3>Choose Your Disposition</h3>
+                    <select id="matrix-your-disposition" onchange="renderMatrix()" disabled>
+                        <option value="">Select a deployment first</option>
+                    </select>
+                    <div class="chip-list" id="matrix-your-disposition-chips"></div>
+                </div>
+                <div class="matrix-choice-panel">
+                    <h3>Choose Opponent Disposition</h3>
+                    <select id="matrix-opponent-disposition" onchange="renderMatrix()" disabled>
+                        <option value="">Select a deployment first</option>
+                    </select>
+                    <div class="chip-list" id="matrix-opponent-disposition-chips"></div>
+                </div>
+            </div>
+
+            <div id="force-disposition-matrix"></div>
+        </div>
+    </div>
+
+    <script>
+        const allFactionDatabase = {
+            imperium: {
+                "Grey Knights": {
+                    short: "GK",
+                    detachments: [
+                        { name: "Argent Assault", disp: "Purge the Foe", dp: 1 },
+                        { name: "Fires of Purgation", disp: "Disruption", dp: 1 },
+                        { name: "Immaterial Interdiction", disp: "Priority Assets", dp: 1 },
+                        { name: "Augurium Task Force", disp: "Reconnaissance", dp: 2 },
+                        { name: "Banishers", disp: "Disruption", dp: 2 },
+                        { name: "Brotherhood Strike", disp: "Purge the Foe", dp: 2 },
+                        { name: "Hallowed Conclave", disp: "Take and Hold", dp: 2 },
+                        { name: "Sanctic Spearhead", disp: "Priority Assets", dp: 2 },
+                        { name: "Warpbane Task Force", disp: "Purge the Foe", dp: 3 }
+                    ]
+                }
+            },
+            space_marines: {
+                "Space Marines (Codex)": {
+                    short: "SM",
+                    detachments: [
+                        { name: "Librarius Conclave", disp: "Disruption", dp: 1 },
+                        { name: "Subversion Assets", disp: "Disruption", dp: 1 },
+                        { name: "Fulguris Task Force", disp: "Disruption", dp: 1 },
+                        { name: "Reclamation Force", disp: "Take and Hold", dp: 2 },
+                        { name: "Emperor's Shield", disp: "Priority Assets", dp: 2 },
+                        { name: "Bastion Task Force", disp: "Take and Hold", dp: 2 },
+                        { name: "Shadowmark Talon", disp: "Disruption", dp: 2 },
+                        { name: "Vanguard Task Force", disp: "Disruption", dp: 2 },
+                        { name: "Forgefather Seekers", disp: "Purge the Foe", dp: 2 },
+                        { name: "Spearpoint Task Force", disp: "Disruption", dp: 2 },
+                        { name: "Firestorm Assault Force", disp: "Purge the Foe", dp: 2 },
+                        { name: "Ironstorm Spearhead", disp: "Purge the Foe", dp: 2 },
+                        { name: "Hammers of Avernii", disp: "Priority Assets", dp: 2 },
+                        { name: "1st Company Task Force", disp: "Priority Assets", dp: 2 },
+                        { name: "Headholders Task Force", disp: "Priority Assets", dp: 2 },
+                        { name: "Orbital Assault Force", disp: "Take and Hold", dp: 2 },
+                        { name: "Gladius Task Force", disp: "Priority Assets", dp: 3 },
+                        { name: "Blades of Ultramar", disp: "Priority Assets", dp: 3 },
+                        { name: "Ceramite Sentinels", disp: "Take and Hold", dp: 3 },
+                        { name: "Stormlance Task Force", disp: "Disruption", dp: 3 },
+                        { name: "Armoured Speartip", disp: "Take and Hold", dp: 3 }
+                    ]
+                },
+                "Blood Angels": {
+                    short: "BA",
+                    detachments: [
+                        { name: "Wrath of the Doomed", disp: "Purge the Foe", dp: 1 },
+                        { name: "Encarmine Speartip", disp: "Priority Assets", dp: 1 },
+                        { name: "Legacy of Grace", disp: "Priority Assets", dp: 1 },
+                        { name: "The Lost Brethren", disp: "Purge the Foe", dp: 2 },
+                        { name: "The Angelic Host", disp: "Disruption", dp: 2 },
+                        { name: "Angelic Inheritors", disp: "Priority Assets", dp: 3 },
+                        { name: "Rage-cursed Onslaught", disp: "Purge the Foe", dp: 3 },
+                        { name: "Liberator Assault Group", disp: "Take and Hold", dp: 3 }
+                    ]
+                },
+                "Dark Angels": {
+                    short: "DA",
+                    detachments: [
+                        { name: "Dark Age Arsenal", disp: "Priority Assets", dp: 1 },
+                        { name: "Darkflight Pursuit", disp: "Reconnaissance", dp: 1 },
+                        { name: "Interrogation Conclave", disp: "Purge the Foe", dp: 1 },
+                        { name: "Company of Hunters", disp: "Disruption", dp: 2 },
+                        { name: "Inner Circle Task Force", disp: "Priority Assets", dp: 2 },
+                        { name: "Lion's Blade Task Force", disp: "Purge the Foe", dp: 2 },
+                        { name: "Unforgiven Task Force", disp: "Priority Assets", dp: 2 },
+                        { name: "Wrath of the Rock", disp: "Priority Assets", dp: 3 }
+                    ]
+                },
+                "Black Templars": {
+                    short: "BT",
+                    detachments: [
+                        { name: "Marshal's Household", disp: "Priority Assets", dp: 1 },
+                        { name: "The Living Miracle", disp: "Purge the Foe", dp: 1 },
+                        { name: "Wrathful Procession", disp: "Take and Hold", dp: 1 },
+                        { name: "Vindication Task Force", disp: "Priority Assets", dp: 2 },
+                        { name: "Companions of Vehemence", disp: "Purge the Foe", dp: 2 },
+                        { name: "Godhammer Assault Force", disp: "Disruption", dp: 2 }
+                    ]
+                },
+                "Space Wolves": {
+                    short: "SW",
+                    detachments: [
+                        { name: "Champions of Fenris", disp: "Purge the Foe", dp: 1 },
+                        { name: "Legends of Saga and Song", disp: "Take and Hold", dp: 1 },
+                        { name: "Veterans of the Fang", disp: "Disruption", dp: 1 },
+                        { name: "Saga of the Beastslayer", disp: "Purge the Foe", dp: 2 },
+                        { name: "Saga of the Bold", disp: "Priority Assets", dp: 2 },
+                        { name: "Saga of the Great Wolf", disp: "Take and Hold", dp: 2 },
+                        { name: "Saga of the Hunter", disp: "Disruption", dp: 2 }
+                    ]
+                },
+                "Deathwatch": {
+                    short: "DW",
+                    detachments: [
+                        { name: "Black Spear Task Force", disp: "Priority Assets", dp: 3 }
+                    ]
+                }
+            },
+            chaos: {
+                "Chaos Space Marines": {
+                    short: "CSM",
+                    detachments: [
+                        { name: "Cabal of Chaos", disp: "Disruption", dp: 1 },
+                        { name: "Devotees of Destruction", disp: "Priority Assets", dp: 1 },
+                        { name: "Murdertalon Raiders", disp: "Purge the Foe", dp: 1 },
+                        { name: "Chaos Cult", disp: "Priority Assets", dp: 2 },
+                        { name: "Deceptors", disp: "Disruption", dp: 2 },
+                        { name: "Creations of Bile", disp: "Purge the Foe", dp: 3 }
+                    ]
+                },
+                "World Eaters": {
+                    short: "WE",
+                    detachments: [
+                        { name: "Butchers of Khorne", disp: "Disruption", dp: 1 },
+                        { name: "Brazen Engines", disp: "Purge the Foe", dp: 1 },
+                        { name: "Vessels of Wrath", disp: "Priority Assets", dp: 1 },
+                        { name: "Cult of Blood", disp: "Priority Assets", dp: 2 },
+                        { name: "Goretrack Onslaught", disp: "Take and Hold", dp: 2 },
+                        { name: "Khorne Daemonkin", disp: "Reconnaissance", dp: 2 },
+                        { name: "Berzerker Warband", disp: "Purge the Foe", dp: 3 }
+                    ]
+                },
+                "Thousand Sons": {
+                    short: "TS",
+                    detachments: [
+                        { name: "Ritual of Regeneration", disp: "Purge the Foe", dp: 1 },
+                        { name: "Sekhetar Cohort", disp: "Priority Assets", dp: 1 },
+                        { name: "Servants of Change", disp: "Reconnaissance", dp: 1 },
+                        { name: "Changehost of Deceit", disp: "Reconnaissance", dp: 2 },
+                        { name: "Hexwarp Thrallband", disp: "Take and Hold", dp: 2 },
+                        { name: "Grand Coven", disp: "Priority Assets", dp: 3 },
+                        { name: "Rubricae Phalanx", disp: "Take and Hold", dp: 3 }
+                    ]
+                },
+                "Death Guard": {
+                    short: "DG",
+                    detachments: [
+                        { name: "Paragons of Putrescence", disp: "Priority Assets", dp: 1 },
+                        { name: "Contagion Engines", disp: "Purge the Foe", dp: 1 },
+                        { name: "Flyblown Host", disp: "Reconnaissance", dp: 1 },
+                        { name: "Champions of Contagion", disp: "Take and Hold", dp: 2 },
+                        { name: "Death Lord's Chosen", disp: "Priority Assets", dp: 2 },
+                        { name: "Mortarion's Hammer", disp: "Purge the Foe", dp: 2 }
+                    ]
+                },
+                "Emperor's Children": {
+                    short: "EC",
+                    detachments: [
+                        { name: "Elegant Brutes", disp: "Take and Hold", dp: 1 },
+                        { name: "Frenzied Host", disp: "Disruption", dp: 1 },
+                        { name: "Spectacle of Slaughter", disp: "Purge the Foe", dp: 1 },
+                        { name: "Carnival of Excess", disp: "Priority Assets", dp: 2 },
+                        { name: "Court of the Phoenician", disp: "Priority Assets", dp: 2 },
+                        { name: "Coterie of the Conceited", disp: "Purge the Foe", dp: 3 }
+                    ]
+                },
+                "Chaos Daemons": {
+                    short: "CD",
+                    detachments: [
+                        { name: "Cavalcade of Chaos", disp: "Disruption", dp: 1 },
+                        { name: "Lords of the Warp", disp: "Purge the Foe", dp: 1 },
+                        { name: "Warptide", disp: "Reconnaissance", dp: 1 },
+                        { name: "Blood Legion", disp: "Purge the Foe", dp: 2 },
+                        { name: "Legion of Excess", disp: "Priority Assets", dp: 2 },
+                        { name: "Plague Legion", disp: "Take and Hold", dp: 2 },
+                        { name: "Daemonic Incursion", disp: "Disruption", dp: 3 }
+                    ]
+                },
+                "Chaos Knights": {
+                    short: "CK",
+                    detachments: [
+                        { name: "Bastions of Tyranny", disp: "Disruption", dp: 1 },
+                        { name: "Hunting Warpack", disp: "Reconnaissance", dp: 1 },
+                        { name: "Iconoclast Fiefdom", disp: "Take and Hold", dp: 1 },
+                        { name: "Helhunt Lance", disp: "Disruption", dp: 2 },
+                        { name: "Houndpack Lance", disp: "Reconnaissance", dp: 2 },
+                        { name: "Lords of Dread", disp: "Priority Assets", dp: 2 },
+                        { name: "Infernal Lance", disp: "Purge the Foe", dp: 3 }
+                    ]
+                }
+            },
+            xenos: {
+                "Orks": {
+                    short: "ORK",
+                    detachments: [
+                        { name: "More Dakka!", disp: "Purge the Foe", dp: 1 },
+                        { name: "Rollin' Deff", disp: "Priority Assets", dp: 1 },
+                        { name: "Taktikal Brigade", disp: "Disruption", dp: 1 },
+                        { name: "Blitz Brigade", disp: "Reconnaissance", dp: 2 },
+                        { name: "Bully Boyz", disp: "Purge the Foe", dp: 2 },
+                        { name: "Da Big Hunt", disp: "Purge the Foe", dp: 2 },
+                        { name: "Dread Mob", disp: "Purge the Foe", dp: 2 },
+                        { name: "Freebooter Krew", disp: "Take and Hold", dp: 2 },
+                        { name: "Green Tide", disp: "Take and Hold", dp: 2 },
+                        { name: "Kult of Speed", disp: "Disruption", dp: 2 },
+                        { name: "Speedwaaagh!", disp: "Reconnaissance", dp: 2 },
+                        { name: "War Horde", disp: "Take and Hold", dp: 3 }
+                    ]
+                },
+                "Aeldari": {
+                    short: "ELD",
+                    detachments: [
+                        { name: "Armoured Warhost", disp: "Reconnaissance", dp: 1 },
+                        { name: "Fateful Performance", disp: "Disruption", dp: 1 },
+                        { name: "Path of the Outcast", disp: "Reconnaissance", dp: 1 },
+                        { name: "Twilight Flickers", disp: "Take and Hold", dp: 1 },
+                        { name: "Corsair Coterie", disp: "Priority Assets", dp: 2 },
+                        { name: "Devoted of Ynnead", disp: "Priority Assets", dp: 2 },
+                        { name: "Eldritch Raiders", disp: "Disruption", dp: 2 },
+                        { name: "Ghosts of the Webway", disp: "Disruption", dp: 2 },
+                        { name: "Guardian Battlehost", disp: "Take and Hold", dp: 2 },
+                        { name: "Seer Council", disp: "Priority Assets", dp: 2 },
+                        { name: "Serpent's Brood", disp: "Purge the Foe", dp: 2 },
+                        { name: "Spirit Conclave", disp: "Take and Hold", dp: 2 },
+                        { name: "Windrider Host", disp: "Disruption", dp: 2 },
+                        { name: "Aspect Host", disp: "Disruption", dp: 3 },
+                        { name: "Warhost", disp: "Purge the Foe", dp: 3 }
+                    ]
+                },
+                "Drukhari": {
+                    short: "DRU",
+                    detachments: [
+                        { name: "Exhibition of Slaughter", disp: "Disruption", dp: 1 },
+                        { name: "Kabalite Agonysts", disp: "Purge the Foe", dp: 1 },
+                        { name: "Tools of Torment", disp: "Take and Hold", dp: 1 },
+                        { name: "Covenite Coterie", disp: "Purge the Foe", dp: 2 },
+                        { name: "Kabalite Cartel", disp: "Disruption", dp: 2 },
+                        { name: "Realspace Raiders", disp: "Priority Assets", dp: 2 },
+                        { name: "Skysplinter Assault", disp: "Reconnaissance", dp: 2 },
+                        { name: "Spectacle of Spite", disp: "Purge the Foe", dp: 2 },
+                        { name: "Reaper's Wager", disp: "Purge the Foe", dp: 3 }
+                    ]
+                },
+                "Leagues of Votann": {
+                    short: "LOV",
+                    detachments: [
+                        { name: "Armoured Trailblazers", disp: "Disruption", dp: 1 },
+                        { name: "Farseekers", disp: "Reconnaissance", dp: 1 },
+                        { name: "Hearthguard Covenant", disp: "Priority Assets", dp: 1 },
+                        { name: "Brandfast Oathband", disp: "Take and Hold", dp: 2 },
+                        { name: "Dêlve Assault Shift", disp: "Purge the Foe", dp: 2 },
+                        { name: "Hearthfyre Arsenal", disp: "Priority Assets", dp: 2 },
+                        { name: "Mercenary Oathband", disp: "Take and Hold", dp: 2 },
+                        { name: "Needgaârd Oathband", disp: "Purge the Foe", dp: 2 },
+                        { name: "Persecution Prospect", disp: "Disruption", dp: 2 },
+                        { name: "Hearthband", disp: "Priority Assets", dp: 3 }
+                    ]
+                },
+                "Necrons": {
+                    short: "NEC",
+                    detachments: [
+                        { name: "Hand of the Dynasty", disp: "Take and Hold", dp: 1 },
+                        { name: "Skyshroud Spearhead", disp: "Reconnaissance", dp: 1 },
+                        { name: "The Phaeron's Armoury", disp: "Priority Assets", dp: 1 },
+                        { name: "Annihilation Legion", disp: "Purge the Foe", dp: 2 },
+                        { name: "Cryptek Conclave", disp: "Priority Assets", dp: 2 },
+                        { name: "Cursed Legion", disp: "Purge the Foe", dp: 2 },
+                        { name: "Hypercrypt Legion", disp: "Reconnaissance", dp: 2 },
+                        { name: "Obeisance Phalanx", disp: "Disruption", dp: 2 },
+                        { name: "Pantheon of Woe", disp: "Purge the Foe", dp: 2 },
+                        { name: "Awakened Dynasty", disp: "Take and Hold", dp: 3 },
+                        { name: "Canoptek Court", disp: "Take and Hold", dp: 3 },
+                        { name: "Starshatter Arsenal", disp: "Priority Assets", dp: 3 }
+                    ]
+                },
+                "Tyranids": {
+                    short: "TYR",
+                    detachments: [
+                        { name: "Ambush Predators", disp: "Disruption", dp: 1 },
+                        { name: "Talons of the Norn Queen", disp: "Take and Hold", dp: 1 },
+                        { name: "Warrior Bioform Onslaught", disp: "Take and Hold", dp: 1 },
+                        { name: "Assimilation Swarm", disp: "Priority Assets", dp: 2 },
+                        { name: "Crusher Stampede", disp: "Purge the Foe", dp: 2 },
+                        { name: "Synaptic Nexus", disp: "Disruption", dp: 2 },
+                        { name: "Unending Swarm", disp: "Take and Hold", dp: 2 },
+                        { name: "Vanguard Onslaught", disp: "Reconnaissance", dp: 2 },
+                        { name: "Invasion Fleet", disp: "Take and Hold", dp: 3 },
+                        { name: "Subterranean Assault", disp: "Disruption", dp: 3 }
+                    ]
+                },
+                "Genestealer Cults": {
+                    short: "GSC",
+                    detachments: [
+                        { name: "Heroes of the Uprising", disp: "Purge the Foe", dp: 1 },
+                        { name: "Purestrain Broodswarm", disp: "Priority Assets", dp: 1 },
+                        { name: "Xenocult Masses", disp: "Disruption", dp: 1 },
+                        { name: "Biosanctic Broodsurge", disp: "Take and Hold", dp: 2 },
+                        { name: "Brood Brothers Auxillia", disp: "Take and Hold", dp: 2 },
+                        { name: "Final Day", disp: "Purge the Foe", dp: 2 },
+                        { name: "Outlander Claw", disp: "Reconnaissance", dp: 2 },
+                        { name: "Xenocreed Congregation", disp: "Priority Assets", dp: 2 },
+                        { name: "Host of Ascension", disp: "Take and Hold", dp: 3 }
+                    ]
+                },
+                "T'au Empire": {
+                    short: "TAU",
+                    detachments: [
+                        { name: "Advanced Acquisition Cadre", disp: "Reconnaissance", dp: 1 },
+                        { name: "Auxillary Cadre", disp: "Disruption", dp: 1 },
+                        { name: "Experimental Prototype Cadre", disp: "Priority Assets", dp: 1 },
+                        { name: "Kauyon", disp: "Priority Assets", dp: 2 },
+                        { name: "Kroot Hunting Pack", disp: "Take and Hold", dp: 2 },
+                        { name: "Retaliation Cadre", disp: "Purge the Foe", dp: 2 },
+                        { name: "Mont'ka", disp: "Purge the Foe", dp: 3 }
+                    ]
+                }
+            }
+        };
+
+        const prohibitedCodexOptions = [
+            "Blades of Ultramar",
+            "Emperor's Shield",
+            "Forgefather Seekers",
+            "Hammers of Avernii",
+            "Spearpoint Task Force",
+            "Shadowmark Talon"
+        ];
+
+        const state = {
+            1: { currentCat: null, faction: "", deployments: [] },
+            2: { currentCat: null, faction: "", deployments: [] }
+        };
+
+        const dispositionOrder = [
+            "Take and Hold",
+            "Purge the Foe",
+            "Disruption",
+            "Reconnaissance",
+            "Priority Assets"
+        ];
+
+        const forceDispositionMatrix = {
+            "Take and Hold": {
+                "Take and Hold": "Battlefield Dominance",
+                "Purge the Foe": "Mirror",
+                "Disruption": "Immovable Object",
+                "Reconnaissance": "Determined Acquisition",
+                "Priority Assets": "Purge and Secure"
+            },
+            "Purge the Foe": {
+                "Take and Hold": "Unstoppable Force",
+                "Purge the Foe": "Meatgrinder",
+                "Disruption": "Mirror",
+                "Reconnaissance": "Punishment",
+                "Priority Assets": "Consecrate"
+            },
+            "Disruption": {
+                "Take and Hold": "Death Trap",
+                "Purge the Foe": "Delaying Action",
+                "Disruption": "Outmanoeuvre",
+                "Reconnaissance": "Mirror",
+                "Priority Assets": "Smoke and Mirrors"
+            },
+            "Reconnaissance": {
+                "Take and Hold": "Reconnaissance Sweep",
+                "Purge the Foe": "Triangulation",
+                "Disruption": "Surveil the Foe",
+                "Reconnaissance": "Gather Intel",
+                "Priority Assets": "Mirror"
+            },
+            "Priority Assets": {
+                "Take and Hold": "Secure Asset",
+                "Purge the Foe": "Vital Link",
+                "Disruption": "Extract Relic",
+                "Reconnaissance": "Vanguard Operation",
+                "Priority Assets": "Sabotage"
+            }
+        };
+
+        function sortByDpThenName(left, right) {
+            return left.dp - right.dp || left.name.localeCompare(right.name) || left.origin.localeCompare(right.origin);
+        }
+
+        function getSelectedDispositions(panelId) {
+            const ordered = [];
+            state[panelId].deployments.forEach(deployment => {
+                if (!ordered.includes(deployment.disp)) {
+                    ordered.push(deployment.disp);
+                }
+            });
+
+            return ordered.sort((left, right) => dispositionOrder.indexOf(left) - dispositionOrder.indexOf(right));
+        }
+
+        function renderForceSummary(panelId, containerId, accentColor, emptyMessage) {
+            const panel = state[panelId];
+            const container = document.getElementById(containerId);
+
+            if (!panel.faction) {
+                container.innerHTML = `<p style="color: var(--text-muted);">${emptyMessage}</p>`;
+                return;
+            }
+
+            if (panel.deployments.length === 0) {
+                container.innerHTML = '<p style="color: var(--accent-red); font-size: 0.9rem;">⚠️ No Detachments Active.</p>';
+                return;
+            }
+
+            let html = '';
+            panel.deployments.forEach(deployment => {
+                html += `
+                    <div class="summary-block" style="border-left-color: ${accentColor};">
+                        <span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; font-weight:bold;">${deployment.origin}</span><br/>
+                        <strong>${deployment.name}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${deployment.dp}DP)</span><br/>
+                        <span class="disposition-badge"><span class="disp-icon ${dispositionClasses[deployment.disp]}"></span>${deployment.disp}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function populateDispositionSelect(selectId, chipContainerId, dispositions, placeholder) {
+            const select = document.getElementById(selectId);
+            const chips = document.getElementById(chipContainerId);
+
+            chips.innerHTML = '';
+            select.innerHTML = '';
+
+            if (dispositions.length === 0) {
+                select.disabled = true;
+                select.innerHTML = `<option value="">${placeholder}</option>`;
+                chips.innerHTML = '<span class="chip">No dispositions selected</span>';
+                return;
+            }
+
+            select.disabled = false;
+            dispositions.forEach((disposition, index) => {
+                const option = document.createElement('option');
+                option.value = disposition;
+                option.textContent = disposition;
+                if (index === 0) {
+                    option.selected = true;
+                }
+                select.appendChild(option);
+
+                const chip = document.createElement('span');
+                chip.className = 'chip';
+                chip.textContent = disposition;
+                chips.appendChild(chip);
+            });
+        }
+
+        function buildDispositionMatrix(attackerDispositions, defenderDispositions) {
+            const matrixContainer = document.getElementById("force-disposition-matrix");
+            const yourSelect = document.getElementById("matrix-your-disposition");
+            const opponentSelect = document.getElementById("matrix-opponent-disposition");
+            const yourDisposition = yourSelect.value || attackerDispositions[0] || "";
+            const opponentDisposition = opponentSelect.value || defenderDispositions[0] || "";
+
+            populateDispositionSelect("matrix-your-disposition", "matrix-your-disposition-chips", attackerDispositions, "Select a deployment first");
+            populateDispositionSelect("matrix-opponent-disposition", "matrix-opponent-disposition-chips", defenderDispositions, "Select a deployment first");
+
+            if (attackerDispositions.includes(yourDisposition)) {
+                yourSelect.value = yourDisposition;
+            }
+            if (defenderDispositions.includes(opponentDisposition)) {
+                opponentSelect.value = opponentDisposition;
+            }
+
+            const activeYourDisposition = yourSelect.value;
+            const activeOpponentDisposition = opponentSelect.value;
+
+            if (!activeYourDisposition || !activeOpponentDisposition) {
+                matrixContainer.innerHTML = '<div class="matchup-empty">Select one disposition from each side to reveal the relevant matchup card.</div>';
+                return;
+            }
+
+            const title = forceDispositionMatrix[activeYourDisposition][activeOpponentDisposition];
+            const isMirror = activeYourDisposition === activeOpponentDisposition;
+
+            matrixContainer.innerHTML = `
+                <div class="matchup-card">
+                    <div class="matchup-card-topline">
+                        <span>You Play: ${activeYourDisposition}</span>
+                        <span>Opponent Plays: ${activeOpponentDisposition}</span>
+                    </div>
+                    <div class="matchup-card-main">
+                        <div class="matchup-side">
+                            <div class="matchup-side-label">You</div>
+                            <div class="matchup-side-title">${activeYourDisposition}</div>
+                            <div class="matchup-side-label">Selected disposition</div>
+                        </div>
+                        <div class="matchup-vs">VS</div>
+                        <div class="matchup-side">
+                            <div class="matchup-side-label">Opponent</div>
+                            <div class="matchup-side-title">${activeOpponentDisposition}</div>
+                            <div class="matchup-side-label">Selected disposition</div>
+                        </div>
+                    </div>
+                    <div class="matchup-result">
+                        <div class="matchup-result-title">${title}</div>
+                        <div class="matchup-result-subtitle">${isMirror ? 'Mirror matchup' : 'Force match up card from the matrix'}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const dispositionClasses = {
+            "Purge the Foe": "disp-purge",
+            "Priority Assets": "disp-priority",
+            "Disruption": "disp-disruption",
+            "Reconnaissance": "disp-recon",
+            "Take and Hold": "disp-take"
+        };
+
+        function switchCategory(panelId, categoryKey) {
+            document.getElementById(`btn-imperium-${panelId}`).classList.remove('active');
+            document.getElementById(`btn-space-marines-${panelId}`).classList.remove('active');
+            document.getElementById(`btn-chaos-${panelId}`).classList.remove('active');
+            document.getElementById(`btn-xenos-${panelId}`).classList.remove('active');
+            const activeButtonId = categoryKey === 'imperium' ? `btn-imperium-${panelId}` : `btn-${categoryKey.replace(/_/g, '-')}-${panelId}`;
+            document.getElementById(activeButtonId).classList.add('active');
+
+            state[panelId].currentCat = categoryKey;
+            state[panelId].faction = "";
+            state[panelId].deployments = [];
+
+            const dropdown = document.getElementById(`army-select-${panelId}`);
+            dropdown.disabled = false;
+            dropdown.innerHTML = '<option value="">-- Select Faction --</option>';
+
+            Object.keys(allFactionDatabase[categoryKey]).sort((left, right) => left.localeCompare(right)).forEach(fac => {
+                let opt = document.createElement("option");
+                opt.value = fac;
+                opt.textContent = fac;
+                dropdown.appendChild(opt);
+            });
+
+            document.getElementById(`detachment-list-${panelId}`).innerHTML = 
+                '<p style="color: var(--text-muted); font-size: 0.9rem;">Select a sub-faction army configuration option...</p>';
+            
+            document.getElementById(`logo-${panelId}`).textContent = `F${panelId}`;
+            updateDPDisplay(panelId);
+            renderMatrix();
+        }
+
+        function loadActiveDeployments(panelId) {
+            const cat = state[panelId].currentCat;
+            const faction = document.getElementById(`army-select-${panelId}`).value;
+
+            state[panelId].faction = faction;
+            state[panelId].deployments = [];
+
+            const listContainer = document.getElementById(`detachment-list-${panelId}`);
+            const logoBox = document.getElementById(`logo-${panelId}`);
+
+            if (!faction) {
+                listContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Select a sub-faction army configuration option...</p>';
+                logoBox.textContent = `F${panelId}`;
+                updateDPDisplay(panelId);
+                renderMatrix();
+                return;
+            }
+
+            logoBox.textContent = allFactionDatabase[cat][faction].short;
+            listContainer.innerHTML = "";
+
+            let compiledList = [];
+
+            // 1. Load sub-faction core selections
+            allFactionDatabase[cat][faction].detachments.forEach(d => {
+                compiledList.push({ ...d, origin: 'Native Roster' });
+            });
+
+            // 2. Cross-compatibility injection filter logic for Space Marines
+            if (cat === "space_marines" && faction !== "Space Marines (Codex)") {
+                allFactionDatabase["space_marines"]["Space Marines (Codex)"].detachments.forEach(codexDet => {
+                    if (!prohibitedCodexOptions.includes(codexDet.name)) {
+                        compiledList.push({ ...codexDet, origin: 'Codex Base' });
+                    }
+                });
+            }
+
+            compiledList.sort(sortByDpThenName);
+
+            // Render DOM Node Layout Items
+            compiledList.forEach((det, index) => {
+                const item = document.createElement("div");
+                item.className = "detachment-item";
+                item.id = `det-${panelId}-${index}`;
+                item.onclick = () => toggleDeploymentItem(panelId, index, det, compiledList);
+
+                const dispClass = dispositionClasses[det.disp] || "";
+                const labelClass = det.origin === 'Codex Base' ? 'source-codex' : 'source-chapter';
+
+                item.innerHTML = `
+                    <div class="detachment-info">
+                        <span class="detachment-source ${labelClass}">${det.origin}</span>
+                        <span class="detachment-name">${det.name}</span>
+                        <span class="disposition-badge">
+                            <span class="disp-icon ${dispClass}"></span>
+                            ${det.disp}
+                        </span>
+                    </div>
+                    <span class="dp-badge">${det.dp} DP</span>
+                `;
+                listContainer.appendChild(item);
+            });
+
+            state[panelId].computedPoolRef = compiledList;
+
+            updateDPDisplay(panelId);
+            renderMatrix();
+        }
+
+        function toggleDeploymentItem(panelId, index, selectedDetachment, currentPool) {
+            const activeSelections = state[panelId].deployments;
+            const existingIndex = activeSelections.findIndex(d => d.index === index);
+
+            if (existingIndex > -1) {
+                activeSelections.splice(existingIndex, 1);
+            } else {
+                const totalCalculatedDP = activeSelections.reduce((sum, d) => sum + d.dp, 0);
+                if (totalCalculatedDP + selectedDetachment.dp > 3) {
+                    alert("Tactical System Check: Selection exceeds the max threshold ceiling allowance of 3 Detachment Points (DP).");
+                    return;
+                }
+                activeSelections.push({ index, ...selectedDetachment });
+            }
+
+            currentPool.forEach((_, idx) => {
+                const elem = document.getElementById(`det-${panelId}-${idx}`);
+                if (elem) elem.classList.remove("selected");
+            });
+
+            const newTotalDP = activeSelections.reduce((sum, d) => sum + d.dp, 0);
+
+            currentPool.forEach((det, idx) => {
+                const elem = document.getElementById(`det-${panelId}-${idx}`);
+                if (!elem) return;
+
+                const isSelected = activeSelections.some(d => d.index === idx);
+                if (isSelected) {
+                    elem.classList.add("selected");
+                }
+
+                if (!isSelected && (newTotalDP + det.dp > 3)) {
+                    elem.classList.add("disabled");
+                } else {
+                    elem.classList.remove("disabled");
+                }
+            });
+
+            updateDPDisplay(panelId);
+            renderMatrix();
+        }
+
+        function updateDPDisplay(panelId) {
+            const total = state[panelId].deployments.reduce((sum, d) => sum + d.dp, 0);
+            const counter = document.getElementById(`dp-count-${panelId}`);
+            counter.textContent = `${total} / 3 DP`;
+
+            if (total === 3) {
+                counter.className = "dp-counter dp-max";
+            } else {
+                counter.className = "dp-counter dp-under";
+            }
+        }
+
+        function renderMatrix() {
+            const attackerPanelIdx = "1";
+            const defenderPanelIdx = "2";
+
+            const attacker = state[attackerPanelIdx];
+            const defender = state[defenderPanelIdx];
+
+            const attackHeader = document.getElementById("attacker-faction-name");
+            const defendHeader = document.getElementById("defender-faction-name");
+            attackHeader.textContent = attacker.faction || "None Selected";
+            defendHeader.textContent = defender.faction || "None Selected";
+
+            renderForceSummary(attackerPanelIdx, "attacker-matrix-content", "#ef4444", "Configure force data options inside the panel selectors.");
+            renderForceSummary(defenderPanelIdx, "defender-matrix-content", "#38bdf8", "Configure force data options inside the panel selectors.");
+
+            buildDispositionMatrix(getSelectedDispositions(attackerPanelIdx), getSelectedDispositions(defenderPanelIdx));
+        }
+    </script>
+</body>
+</html>
