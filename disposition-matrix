@@ -3,718 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Warhammer 40K 11th Edition Force Disposition Matrix</title>
+    <title>Warhammer 40K Force Disposition Matrix & Tactical Hub</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cinzel for headings, Inter for body copy -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cinzel: ['Cinzel', 'serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        grimdark: {
+                            950: '#070a0f',
+                            900: '#0d131a',
+                            800: '#141d28',
+                            700: '#1e2b3b',
+                            600: '#2a3c52',
+                            500: '#3d5673',
+                            gold: '#d4af37',
+                            amber: '#f59e0b',
+                        }
+                    },
+                    boxShadow: {
+                        'gothic-glow': '0 0 15px rgba(245, 158, 11, 0.2)',
+                        'gold-glow': '0 0 25px rgba(212, 175, 55, 0.35)',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --bg-dark: #0a0f14;
-            --panel-bg: #121a22;
-            --border-color: #243545;
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
-            --accent-green: #22c55e;
-            --accent-red: #ef4444;
-            --faction-highlight: #38bdf8;
-            --btn-active-blue: #1d4ed8;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-            padding: 2rem;
-            line-height: 1.5;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 1.5rem;
-        }
-
-        h1 {
-            font-size: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            background-color: #070a0f;
             color: #f1f5f9;
+            background-image: 
+                radial-gradient(at 50% 0%, rgba(212, 175, 55, 0.08) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(30, 43, 59, 0.2) 0px, transparent 50%),
+                url("https://www.transparenttextures.com/patterns/dark-matter.png");
+            background-attachment: fixed;
         }
-
-        p.subtitle {
-            color: var(--text-muted);
-            margin-top: 0.5rem;
-        }
-
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        @media (min-width: 1024px) {
-            .main-container {
-                grid-template-columns: 1fr 1fr;
-            }
-            .matrix-section {
-                grid-column: span 2;
-            }
-        }
-
-        .faction-panel {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-        }
-
-        .panel-title {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-size: 1.25rem;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .logo-placeholder {
-            width: 40px;
-            height: 32px;
-            background-color: var(--border-color);
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 0.75rem;
-            color: var(--faction-highlight);
-            border: 1px solid var(--faction-highlight);
-        }
-
-        .category-toggle-container {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .toggle-btn {
-            background-color: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            color: var(--text-muted);
-            padding: 0.55rem 0.4rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.74rem;
-            letter-spacing: 1px;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 0;
-        }
-
-        .toggle-btn:hover {
-            border-color: var(--text-main);
-            color: var(--text-main);
-        }
-
-        .toggle-btn.active {
-            background-color: var(--btn-active-blue);
-            border-color: var(--faction-highlight);
-            color: white;
-        }
-
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-
-        label {
-            display: block;
-            font-size: 0.875rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        select {
-            width: 100%;
-            background-color: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            color: var(--text-main);
-            padding: 0.75rem;
-            border-radius: 6px;
-            font-size: 1rem;
-            outline: none;
-            cursor: pointer;
-        }
-
-        select:focus {
-            border-color: var(--faction-highlight);
-        }
-
-        .dp-counter {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            font-weight: bold;
-            margin-left: auto;
-        }
-
-        .dp-under { background-color: rgba(34, 197, 94, 0.2); color: var(--accent-green); }
-        .dp-max { background-color: rgba(56, 189, 248, 0.2); color: var(--faction-highlight); }
-
-        .detachment-list {
-            display: grid;
-            gap: 0.5rem;
-            margin-top: 0.5rem;
-            max-height: 340px;
-            overflow-y: auto;
-            padding-right: 0.5rem;
-        }
-
-        .detachment-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            padding: 0.75rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .detachment-item:hover:not(.disabled) {
-            border-color: var(--text-muted);
-        }
-
-        .detachment-item.selected {
-            border-color: var(--faction-highlight);
-            background-color: rgba(56, 189, 248, 0.05);
-        }
-
-        .detachment-item.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-
-        .detachment-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .detachment-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-
-        .detachment-source {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.15rem;
-        }
-        .source-chapter { color: var(--faction-highlight); }
-        .source-codex { color: #e2e8f0; opacity: 0.6; }
-
-        .disposition-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.25rem;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .disp-icon {
+        
+        ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
-            border-radius: 50%;
-            display: inline-block;
         }
-        .disp-purge { background-color: #ef4444; }
-        .disp-priority { background-color: #f59e0b; }
-        .disp-disruption { background-color: #a855f7; }
-        .disp-recon { background-color: #06b6d4; }
-        .disp-take { background-color: #10b981; }
-
-        .dp-badge {
-            background-color: var(--border-color);
-            padding: 0.25rem 0.5rem;
+        ::-webkit-scrollbar-track {
+            background: #0d131a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e2b3b;
             border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
         }
-
-        .matrix-section {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 1rem;
-        }
-
-        .matrix-legend {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .force-summary-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        @media (min-width: 900px) {
-            .force-summary-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .force-summary-panel {
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-        }
-
-        .force-summary-panel h3 {
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 0.75rem;
-            color: var(--text-main);
-        }
-
-        .matrix-choice-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        @media (min-width: 900px) {
-            .matrix-choice-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        .matrix-choice-panel {
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1rem;
-        }
-
-        .matrix-choice-panel h3 {
-            margin-bottom: 0.75rem;
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .chip-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem;
-            margin-top: 0.75rem;
-        }
-
-        .chip {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.3rem 0.55rem;
-            border-radius: 999px;
-            border: 1px solid var(--border-color);
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--text-muted);
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-        }
-
-        .matchup-card {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 1rem;
-            background: linear-gradient(180deg, rgba(18, 26, 34, 0.95), rgba(10, 15, 20, 0.98));
-            border: 1px solid rgba(56, 189, 248, 0.25);
-            border-radius: 14px;
-            padding: 1.25rem;
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
-        }
-
-        .matchup-card-topline {
-            display: flex;
-            justify-content: space-between;
-            gap: 1rem;
-            flex-wrap: wrap;
-            color: var(--text-muted);
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-        }
-
-        .matchup-card-main {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        @media (max-width: 720px) {
-            .matchup-card-main {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .matchup-side {
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1rem;
-            min-height: 120px;
-        }
-
-        .matchup-side-label {
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin-bottom: 0.35rem;
-            font-weight: 700;
-        }
-
-        .matchup-side-title {
-            font-size: 1rem;
-            font-weight: 800;
-            color: var(--text-main);
-            margin-bottom: 0.35rem;
-        }
-
-        .matchup-vs {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            color: var(--faction-highlight);
-            font-weight: 800;
-            text-align: center;
-        }
-
-        .matchup-result {
-            background: rgba(56, 189, 248, 0.08);
-            border: 1px solid rgba(56, 189, 248, 0.35);
-            border-radius: 12px;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .matchup-result-title {
-            font-size: 1.25rem;
-            font-weight: 900;
-            color: var(--text-main);
-            margin-bottom: 0.4rem;
-        }
-
-        .matchup-result-subtitle {
-            color: var(--text-muted);
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 700;
-        }
-
-        .matchup-empty {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            text-align: center;
-            padding: 1rem 0;
-        }
-
-        .selected-deployment-list {
-            display: grid;
-            gap: 0.5rem;
-        }
-
-        .disposition-matrix {
-            display: grid;
-            grid-template-columns: 180px repeat(5, minmax(0, 1fr));
-            gap: 0.5rem;
-            align-items: stretch;
-        }
-
-        .matrix-card {
-            background: var(--bg-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 0.85rem;
-            min-height: 96px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-        }
-
-        .matrix-card:hover {
-            transform: translateY(-1px);
-            border-color: var(--text-muted);
-        }
-
-        .matrix-card.header-card {
-            background: rgba(56, 189, 248, 0.08);
-            border-color: rgba(56, 189, 248, 0.35);
-        }
-
-        .matrix-card.row-header {
-            background: rgba(56, 189, 248, 0.06);
-            border-color: rgba(56, 189, 248, 0.25);
-        }
-
-        .matrix-card.cell-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .matrix-card.cell-card.active-row,
-        .matrix-card.cell-card.active-column {
-            border-color: rgba(56, 189, 248, 0.55);
-            box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.18);
-        }
-
-        .matrix-card.cell-card.active-match {
-            border-color: var(--faction-highlight);
-            box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.25), 0 0 24px rgba(56, 189, 248, 0.08);
-        }
-
-        .matrix-card .matrix-disposition {
-            font-size: 0.72rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin-bottom: 0.35rem;
-            font-weight: 700;
-        }
-
-        .matrix-card .matrix-card-title {
-            font-size: 0.92rem;
-            font-weight: 700;
-            color: var(--text-main);
-            line-height: 1.2;
-        }
-
-        .matrix-card .matrix-card-subtitle {
-            margin-top: 0.35rem;
-            font-size: 0.68rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-        }
-
-        .matrix-card.mirror-card .matrix-card-subtitle {
-            color: var(--faction-highlight);
-        }
-
-        .matrix-card.corner-card {
-            background: linear-gradient(135deg, rgba(29, 78, 216, 0.18), rgba(15, 23, 42, 0.95));
-            border-style: dashed;
-        }
-
-        .matrix-card.corner-card .matrix-card-title {
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.78rem;
-            color: var(--text-muted);
-        }
-
-        .matrix-card.corner-card .matrix-card-subtitle {
-            color: var(--text-main);
-            font-size: 0.95rem;
-            margin-top: 0.25rem;
-            text-transform: none;
-            letter-spacing: 0;
-        }
-
-        .matrix-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        .matrix-table th, .matrix-table td {
-            border: 1px solid var(--border-color);
-            padding: 1rem;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        .matrix-table th {
-            background-color: var(--bg-dark);
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-        }
-
-        .matrix-role {
-            font-weight: bold;
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-
-        .role-attacker { background-color: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
-        .role-defender { background-color: rgba(56, 189, 248, 0.2); color: var(--faction-highlight); }
-
-        .summary-block {
-            background-color: var(--bg-dark);
-            padding: 0.5rem 0.75rem;
-            border-radius: 4px;
-            margin-bottom: 0.5rem;
-            border-left: 3px solid var(--border-color);
-            font-size: 0.9rem;
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f59e0b;
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen py-8 px-4 md:px-8">
 
-    <header>
-        <h1>WH40k 11th Edition Force Disposition Matrix</h1>
-        <p class="subtitle">Multi-Faction Detachment Configuration Engine (With Cross-Codex Synergies)</p>
-    </header>
-
-    <div class="main-container">
-        <!-- ROSTER PANEL 1 -->
-        <div class="faction-panel" id="panel-1">
-            <div class="panel-title">
-                <div class="logo-placeholder" id="logo-1">F1</div>
-                <h2>Combat Detachment Force A</h2>
-                <span class="dp-counter dp-under" id="dp-count-1">0 / 3 DP</span>
+    <div class="max-w-7xl mx-auto">
+        <!-- MAIN PAGE HEADER -->
+        <header class="relative mb-12 text-center py-8 border-b border-grimdark-700">
+            <div class="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                <i class="fa-solid fa-cross text-9xl text-amber-500"></i>
             </div>
+            <h1 class="text-3xl md:text-5xl font-black text-grimdark-gold tracking-wider font-cinzel mb-2 drop-shadow-[0_2px_10px_rgba(212,175,55,0.3)]">
+                FORCE DISPOSITION MATRIX
+            </h1>
+            <p class="text-xs md:text-sm tracking-[0.25em] font-cinzel text-amber-500 uppercase font-semibold">
+                Multi-Faction Configuration Engine & Tactical Hub (11th Edition)
+            </p>
+            <div class="w-40 h-0.5 mx-auto bg-gradient-to-r from-transparent via-amber-500 to-transparent mt-4"></div>
+        </header>
+
+        <!-- ROSTER MATRIX ENGINE -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
             
-            <label>1. Select Grand Category</label>
-            <div class="category-toggle-container">
-                <button type="button" class="toggle-btn" id="btn-imperium-1" onclick="switchCategory(1, 'imperium')">Imperium</button>
-                <button type="button" class="toggle-btn" id="btn-space-marines-1" onclick="switchCategory(1, 'space_marines')">Space Marines</button>
-                <button type="button" class="toggle-btn" id="btn-chaos-1" onclick="switchCategory(1, 'chaos')">Chaos</button>
-                <button type="button" class="toggle-btn" id="btn-xenos-1" onclick="switchCategory(1, 'xenos')">Xenos</button>
-            </div>
+            <!-- COMBAT ROSTER A PANEL -->
+            <div class="bg-grimdark-900/90 border border-grimdark-700/80 rounded-xl p-6 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]"></div>
+                
+                <div class="flex items-center justify-between mb-6 border-b border-grimdark-800 pb-3">
+                    <div class="flex items-center gap-3">
+                        <div id="logo-1" class="w-10 h-8 bg-grimdark-950 border border-emerald-500/50 rounded flex items-center justify-center font-bold text-xs text-emerald-400 font-cinzel">YOU</div>
+                        <h2 class="text-lg font-cinzel text-slate-100 font-bold tracking-wider">You</h2>
+                    </div>
+                    <span id="dp-count-1" class="text-xs font-bold font-cinzel px-3 py-1 rounded bg-grimdark-950/50 text-emerald-400 border border-emerald-800/40">0 / 3 DP</span>
+                </div>
 
-            <div class="form-group">
-                <label for="army-select-1">2. Select Specific Faction</label>
-                <select id="army-select-1" onchange="loadActiveDeployments(1)" disabled>
-                    <option value="">-- Choose Category First --</option>
-                </select>
-            </div>
-
-            <label>Available Deployments (Max 3 DP)</label>
-            <div class="detachment-list" id="detachment-list-1">
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Select a grand category and sub-faction above...</p>
-            </div>
-        </div>
-
-        <!-- ROSTER PANEL 2 -->
-        <div class="faction-panel" id="panel-2">
-            <div class="panel-title">
-                <div class="logo-placeholder" id="logo-2">F2</div>
-                <h2>Combat Detachment Force B</h2>
-                <span class="dp-counter dp-under" id="dp-count-2">0 / 3 DP</span>
-            </div>
-            
-            <label>1. Select Grand Category</label>
-            <div class="category-toggle-container">
-                <button type="button" class="toggle-btn" id="btn-imperium-2" onclick="switchCategory(2, 'imperium')">Imperium</button>
-                <button type="button" class="toggle-btn" id="btn-space-marines-2" onclick="switchCategory(2, 'space_marines')">Space Marines</button>
-                <button type="button" class="toggle-btn" id="btn-chaos-2" onclick="switchCategory(2, 'chaos')">Chaos</button>
-                <button type="button" class="toggle-btn" id="btn-xenos-2" onclick="switchCategory(2, 'xenos')">Xenos</button>
-            </div>
-
-            <div class="form-group">
-                <label for="army-select-2">2. Select Specific Faction</label>
-                <select id="army-select-2" onchange="loadActiveDeployments(2)" disabled>
-                    <option value="">-- Choose Category First --</option>
-                </select>
-            </div>
-
-            <label>Available Deployments (Max 3 DP)</label>
-            <div class="detachment-list" id="detachment-list-2">
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Select a grand category and sub-faction above...</p>
-            </div>
-        </div>
-
-        <!-- ENGAGEMENT MATRIX SECTION -->
-        <div class="matrix-section">
-            <div class="panel-title">
-                <h2>Tactical Engagement Matrix Breakdown</h2>
-            </div>
-
-            <div class="matrix-legend">
-                <span>▼ You Play</span>
-                <span>▶ Opponent Plays</span>
-            </div>
-
-            <div class="force-summary-grid">
-                <div class="force-summary-panel">
-                    <h3 id="attacker-faction-name">None Loaded</h3>
-                    <div class="selected-deployment-list" id="attacker-matrix-content">
-                        <p style="color: var(--text-muted);">Awaiting force customization deployment data...</p>
+                <div class="mb-4">
+                    <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-1.5">1. Select Super Faction</label>
+                    <div class="grid grid-cols-4 gap-1.5">
+                        <button type="button" id="btn-imperium-1" onclick="switchCategory(1, 'imperium')" class="bg-grimdark-950 hover:bg-grimdark-800 border border-grimdark-700 text-[10px] font-bold text-slate-300 py-2 rounded uppercase transition-all tracking-wider">Imperium</button>
+                        <button type="button" id="btn-space-marines-1" onclick="switchCategory(1, 'space_marines')" class="bg-grimdark-950 hover:bg-grimdark-800 border border-grimdark-700 text-[10px] font-bold text-slate-300 py-2 rounded uppercase transition-all tracking-wider">Space Marines</button>
+                        <button type="button" id="btn-chaos-1" onclick="switchCategory(1, 'chaos')" class="bg-grimdark-950 hover:bg-grimdark-800 border border-grimdark-700 text-[10px] font-bold text-slate-300 py-2 rounded uppercase transition-all tracking-wider">Chaos</button>
+                        <button type="button" id="btn-xenos-1" onclick="switchCategory(1, 'xenos')" class="bg-grimdark-950 hover:bg-grimdark-800 border border-grimdark-700 text-[10px] font-bold text-slate-300 py-2 rounded uppercase transition-all tracking-wider">Xenos</button>
                     </div>
                 </div>
-                <div class="force-summary-panel">
-                    <h3 id="defender-faction-name">None Loaded</h3>
-                    <div class="selected-deployment-list" id="defender-matrix-content">
-                        <p style="color: var(--text-muted);">Awaiting force customization deployment data...</p>
+
+                <div class="mb-4">
+                    <label for="army-select-1" class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-1.5">2. Select Faction</label>
+                    <select id="army-select-1" onchange="loadActiveDeployments(1)" disabled class="w-full bg-grimdark-950 border border-grimdark-800 text-slate-300 rounded px-3 py-2 text-xs focus:outline-none focus:border-amber-500 cursor-pointer">
+                        <option value="">-- Choose Faction First --</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">Available Detachments (Max 3 DP)</label>
+                    <div id="dp-warning-1" class="hidden mb-2 p-2 rounded border border-rose-800 bg-rose-950/60 text-rose-300 text-xs flex items-center justify-between gap-2 transition-all">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-rose-500 animate-pulse"></i>
+                            <span>Threshold reached. Maximum allocation is 3 Detachment Points (DP).</span>
+                        </span>
+                        <button onclick="document.getElementById('dp-warning-1').classList.add('hidden')" class="text-rose-400 hover:text-rose-200"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div id="detachment-list-1" class="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+                        <p class="text-xs text-slate-500 italic">Awaiting faction select...</p>
                     </div>
                 </div>
             </div>
 
-            <div class="matrix-choice-grid">
-                <div class="matrix-choice-panel">
-                    <h3>Choose Your Disposition</h3>
-                    <select id="matrix-your-disposition" onchange="renderMatrix()" disabled>
-                        <option value="">Select a deployment first</option>
-                    </select>
-                    <div class="chip-list" id="matrix-your-disposition-chips"></div>
+            <!-- COMBAT ROSTER B PANEL -->
+            <div class="bg-grimdark-900/90 border border-grimdark-700/80 rounded-xl p-6 shadow-xl relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-1 h-full bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.4)]"></div>
+
+                <div class="flex items-center justify-between mb-6 border-b border-grimdark-800 pb-3">
+                    <div class="flex items-center gap-3">
+                        <div id="logo-2" class="w-10 h-8 bg-grimdark-950 border border-sky-500/50 rounded flex items-center justify-center font-bold text-xs text-sky-400 font-cinzel">OPP</div>
+                        <h2 class="text-lg font-cinzel text-slate-100 font-bold tracking-wider">Opponent</h2>
+                    </div>
+                    <span id="dp-count-2" class="text-xs font-bold font-cinzel px-3 py-1 rounded bg-sky-950/50 text-sky-400 border border-sky-800/40">0 / 3 DP</span>
                 </div>
-                <div class="matrix-choice-panel">
-                    <h3>Choose Opponent Disposition</h3>
-                    <select id="matrix-opponent-disposition" onchange="renderMatrix()" disabled>
-                        <option value="">Select a deployment first</option>
+
+                <div class="mb-4">
+                    <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-1.5">1. Select Super Faction</label>
+                    <div class="grid grid-cols-4 gap-1.5">
+                        <button type="button" id="btn-imperium-2" onclick="switchCategory(2, 'imperium')" class="bg-grimdark-950 hover:bg-grimdark-800 border border-grimdark-700 text-[10px] font-bold text-slate-300 py-2 rounded uppercase transition-all tracking-wider">Imperium</button>
+                        <button type="button" id="btn-space-marines-2" onclick="switchCategory(2, 'space_marines')" class="bg-grimdark-950 hover:bg-grimdark-800 border border-grimdark-700 text-[10px] font-bold text-slate-300 py-2 rounded uppercase transition-all tracking-wider">Space Marines</button>
+                        <button type="button" id="btn-chaos-2" onclick="switchCategory(2, 'chaos')" class="bg-grimdark-950 hover:bg-grimdark-800 border border-grimdark-700 text-[10px] font-bold text-slate-300 py-2 rounded uppercase transition-all tracking-wider">Chaos</button>
+                        <button type="button" id="btn-xenos-2" onclick="switchCategory(2, 'xenos')" class="bg-grimdark-950 hover:bg-grimdark-800 border border-grimdark-700 text-[10px] font-bold text-slate-300 py-2 rounded uppercase transition-all tracking-wider">Xenos</button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="army-select-2" class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-1.5">2. Select Faction</label>
+                    <select id="army-select-2" onchange="loadActiveDeployments(2)" disabled class="w-full bg-grimdark-950 border border-grimdark-800 text-slate-300 rounded px-3 py-2 text-xs focus:outline-none focus:border-amber-500 cursor-pointer">
+                        <option value="">-- Choose Faction First --</option>
                     </select>
-                    <div class="chip-list" id="matrix-opponent-disposition-chips"></div>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] text-slate-400 uppercase tracking-wider font-bold mb-2">Available Detachments (Max 3 DP)</label>
+                    <div id="dp-warning-2" class="hidden mb-2 p-2 rounded border border-rose-800 bg-rose-950/60 text-rose-300 text-xs flex items-center justify-between gap-2 transition-all">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation text-rose-500 animate-pulse"></i>
+                            <span>Threshold reached. Maximum allocation is 3 Detachment Points (DP).</span>
+                        </span>
+                        <button onclick="document.getElementById('dp-warning-2').classList.add('hidden')" class="text-rose-400 hover:text-rose-200"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div id="detachment-list-2" class="space-y-2 max-h-[280px] overflow-y-auto pr-1">
+                        <p class="text-xs text-slate-500 italic">Awaiting faction select...</p>
+                    </div>
                 </div>
             </div>
 
-            <div id="force-disposition-matrix"></div>
-        </div>
+        </section>
+
+        <!-- ENGAGEMENT MATRIX DISPLAY -->
+        <section class="bg-grimdark-900/95 border border-grimdark-700/80 rounded-xl p-6 shadow-2xl mb-16 relative">
+            <div class="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-transparent via-amber-500 to-transparent"></div>
+            
+            <div class="border-b border-grimdark-800 pb-3 mb-6">
+                <h2 class="text-xl font-cinzel text-grimdark-gold font-bold tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-diagram-project text-sm"></i> Force Disposition Matchup Matrix
+                </h2>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-1">Real-time Cross-Faction Synergy and Asymmetric Matchups</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-grimdark-950 border border-grimdark-800/80 rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-3 border-b border-grimdark-800/60 pb-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+                        <h3 id="attacker-faction-name" class="font-cinzel text-xs font-bold uppercase tracking-wider text-slate-200">You (Not Loaded)</h3>
+                    </div>
+                    <div id="attacker-matrix-content" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                        <p class="text-xs text-slate-500 italic">Deploy your configurations to generate breakdown...</p>
+                    </div>
+                </div>
+
+                <div class="bg-grimdark-950 border border-grimdark-800/80 rounded-xl p-4">
+                    <div class="flex items-center gap-2 mb-3 border-b border-grimdark-800/60 pb-2">
+                        <span class="w-2 h-2 rounded-full bg-sky-500 shadow-[0_0_8px_rgba(56,189,248,0.5)]"></span>
+                        <h3 id="defender-faction-name" class="font-cinzel text-xs font-bold uppercase tracking-wider text-slate-200">Opponent (Not Loaded)</h3>
+                    </div>
+                    <div id="defender-matrix-content" class="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                        <p class="text-xs text-slate-500 italic">Deploy opponent configurations to generate breakdown...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-grimdark-950 border border-grimdark-800 rounded-lg p-4">
+                    <label class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-2">Choose Your Disposition</label>
+                    <select id="matrix-your-disposition" onchange="renderMatrix()" disabled class="w-full bg-grimdark-900 border border-grimdark-800 text-slate-300 rounded px-3 py-2 text-xs focus:outline-none focus:border-amber-500 cursor-pointer">
+                        <option value="">Select a deployment first</option>
+                    </select>
+                    <div id="matrix-your-disposition-chips" class="flex flex-wrap gap-1.5 mt-3"></div>
+                </div>
+
+                <div class="bg-grimdark-950 border border-grimdark-800 rounded-lg p-4">
+                    <label class="block text-[10px] text-slate-400 uppercase font-bold tracking-wider mb-2">Choose Opponent Disposition</label>
+                    <select id="matrix-opponent-disposition" onchange="renderMatrix()" disabled class="w-full bg-grimdark-900 border border-grimdark-800 text-slate-300 rounded px-3 py-2 text-xs focus:outline-none focus:border-amber-500 cursor-pointer">
+                        <option value="">Select a deployment first</option>
+                    </select>
+                    <div id="matrix-opponent-disposition-chips" class="flex flex-wrap gap-1.5 mt-3"></div>
+                </div>
+            </div>
+
+            <div id="force-disposition-matrix" class="rounded-xl border border-grimdark-800 overflow-hidden">
+                <!-- Dynamically Built by JavaScript -->
+            </div>
+        </section>
     </div>
 
     <script>
         const allFactionDatabase = {
             imperium: {
+                "Astra Militarum": {
+                    short: "AM",
+                    detachments: [
+                        { name: "Abhuman Auxiliaries", disp: "Take and Hold", dp: 1 },
+                        { name: "Bridgehead Strike", disp: "Priority Assets", dp: 1 },
+                        { name: "Designation Force", disp: "Reconnaissance", dp: 1 },
+                        { name: "Armoured Infantry", disp: "Take and Hold", dp: 2 },
+                        { name: "Combined Arms", disp: "Take and Hold", dp: 3 },
+                        { name: "Grizzled Company", disp: "Priority Assets", dp: 3 },
+                        { name: "Hammer of the Emperor", disp: "Purge the Foe", dp: 2 },
+                        { name: "Mechanised Assault", disp: "Purge the Foe", dp: 2 },
+                        { name: "Recon Element", disp: "Reconnaissance", dp: 3 },
+                        { name: "Siege Regiment", disp: "Disruption", dp: 2 },
+                        { name: "Steel Hammer", disp: "Purge the Foe", dp: 2 }
+                    ]
+                },
+                "Adepta Sororitas": {
+                    short: "AS",
+                    detachments: [
+                        { name: "Chorus of Condemnation", disp: "Reconnaissance", dp: 1 },
+                        { name: "Sacred Champions", disp: "Take and Hold", dp: 1 },
+                        { name: "Sanctified Orators", disp: "Purge the Foe", dp: 1 },
+                        { name: "Army of Faith", disp: "Take and Hold", dp: 2 },
+                        { name: "Bringers of Flame", disp: "Purge the Foe", dp: 3 },
+                        { name: "Champions of Faith", disp: "Disruption", dp: 2 },
+                        { name: "Hallowed Martyrs", disp: "Priority Assets", dp: 3 },
+                        { name: "Penitent Host", disp: "Take and Hold", dp: 3 }
+                    ]
+                },
+                "Adeptus Mechanicus": {
+                    short: "ADMC",
+                    detachments: [
+                        { name: "Cohort Acquisitus", disp: "Reconnaissance", dp: 1 },
+                        { name: "Lords of the Forge", disp: "Priority Assets", dp: 1 },
+                        { name: "Luminen Auto-Choir", disp: "Disruption", dp: 1 },
+                        { name: "Cohort Cybernetica", disp: "Disruption", dp: 2 },
+                        { name: "Data-psalm Conclave", disp: "Priority Assets", dp: 3 },
+                        { name: "Explorator Maniple", disp: "Take and Hold", dp: 2 },
+                        { name: "Hunter Cohort", disp: "Reconnaissance", dp: 2 },
+                        { name: "Rad-zone Corps", disp: "Purge the Foe", dp: 3 },
+                        { name: "Skitarii Veteran Cohort", disp: "Take and Hold", dp: 2 },
+                        { name: "Techno-archeologist Expedition", disp: "Take and Hold", dp: 1 },
+                        { name: "Xenarite Splinter", disp: "Purge the Foe", dp: 1 }
+                    ]
+                },
+                "Imperial Knights": {
+                    short: "IK",
+                    detachments: [
+                        { name: "Dominus Foebreakers", disp: "Purge the Foe", dp: 1 },
+                        { name: "Questor Forgepact", disp: "Disruption", dp: 1 },
+                        { name: "Throne-bonded Outriders", disp: "Reconnaissance", dp: 1 },
+                        { name: "Lance of the Ancients", disp: "Disruption", dp: 1 },
+                        { name: "Gate Warden Lance", disp: "Priority Assets", dp: 2 },
+                        { name: "Spearhead-at-arms", disp: "Reconnaissance", dp: 2 },
+                        { name: "Valourstrike Lance", disp: "Purge the Foe", dp: 2 },
+                        { name: "Questoris Companions", disp: "Take and Hold", dp: 3 },
+                        { name: "Freeblade Company", disp: "Purge the Foe", dp: 3 },
+                        { name: "Noble Exemplars", disp: "Take and Hold", dp: 3 }
+                    ]
+                },
+                "Adeptus Custodes": {
+                    short: "AC",
+                    detachments: [
+                        { name: "Might of the Moritoi", disp: "Purge the Foe", dp: 1 },
+                        { name: "Silent Hunters", disp: "Reconnaissance", dp: 1 },
+                        { name: "Tharanatoi Hammerblow", disp: "Priority Assets", dp: 1 },
+                        { name: "Auric Champions", disp: "Priority Assets", dp: 2 },
+                        { name: "Lions of the Emperor", disp: "Reconnaissance", dp: 2 },
+                        { name: "Null Maiden Vigil", disp: "Disruption", dp: 2 },
+                        { name: "Shield Host", disp: "Purge the Foe", dp: 3 },
+                        { name: "Solar Spearhead", disp: "Take and Hold", dp: 2 },
+                        { name: "Talons of the Emperor", disp: "Take and Hold", dp: 3 }
+                    ]
+                },
+                "Imperial Agents": {
+                    short: "IA",
+                    detachments: [
+                        { name: "Fleetis Imperialis", disp: "Disruption", dp: 1 },
+                        { name: "Malleus Inquisitor Detachment", disp: "Purge the Foe", dp: 1 },
+                        { name: "Xenos Inquisitor Detachment", disp: "Reconnaissance", dp: 1 },
+                        { name: "Imperialis Fleet", disp: "Reconnaissance", dp: 2 },
+                        { name: "Ordo Hereticus, Purgation Force", disp: "Priority Assets", dp: 3 },
+                        { name: "Ordo Malleus, Daemon Hunters", disp: "Reconnaissance", dp: 3 },
+                        { name: "Ordo Hereticus Strike Force", disp: "Priority Assets", dp: 3 }
+                    ]
+                },
                 "Grey Knights": {
                     short: "GK",
                     detachments: [
@@ -1046,34 +654,790 @@
             "Priority Assets"
         ];
 
+        const missionCardDatabase = {
+            // --- TAKE AND HOLD DECK ---
+            "Battlefield Dominance": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "FIRST & SECOND BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "You control more objectives than your opponent.", vp: "2" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "For each objective you control.", vp: "3" },
+                            { desc: "For each of those objectives (excluding your home objective) if you control your home objective.", vp: "+2", cumulative: true }
+                        ]
+                    }
+                ]
+            },
+            "Determined Acquisition": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "For each objective you control that you did not control at the start of the turn (excluding your home objective).", vp: "2" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "For each objective you control.", vp: "3" },
+                            { desc: "For each of those objectives that is within your opponent's territory.", vp: "+3", cumulative: true }
+                        ]
+                    }
+                ]
+            },
+            "Immovable Object": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "You control one or more central objectives.", vp: "3" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND TO FOURTH BATTLE ROUND",
+                        when: "End of your Command phase",
+                        rows: [
+                            { desc: "For each objective you control (excluding your home objective).", vp: "5" }
+                        ]
+                    },
+                    {
+                        timing: "FIFTH BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "For each objective you control (excluding your home objective).", vp: "5" }
+                        ]
+                    }
+                ]
+            },
+            "Inescapable Dominion": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "You control three or more objectives.", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control two or more objectives.", vp: "5" },
+                            { desc: "You control more objectives than your opponent.", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "You control your opponent's home objective.", vp: "5" }
+                        ]
+                    }
+                ]
+            },
+            "Purge & Secure": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "One or more enemy units were destroyed this turn by a friendly unit that was within range of one or more objectives.", vp: "3" },
+                            { desc: "One or more enemy units that started the turn within range of one or more objectives were destroyed this turn.", vp: "3", separator: "OR" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "For each objective you control (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "You control one or more objectives that you did not control at the start of the turn (excluding your home objective).", vp: "3" }
+                        ]
+                    }
+                ]
+            },
+
+            // --- PURGE THE FOE DECK ---
+            "Unstoppable Force": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "One or more enemy units were destroyed this turn.", vp: "3" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "For each objective you control (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "You control one or more objectives you did not control at the start of the turn (excluding your home objective).", vp: "3" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "You control one or more central objectives.", vp: "5" }
+                        ]
+                    }
+                ]
+            },
+            "Meatgrinder": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "One or more enemy units were destroyed this turn.", vp: "3" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "More enemy units were destroyed this turn than friendly units were destroyed in the previous turn.", vp: "5" },
+                            { desc: "You control your opponent's home objective.", vp: "5" }
+                        ]
+                    }
+                ]
+            },
+            "Punishment": {
+                setup: "START OF YOUR TURN: Choose one to three enemy units on the battlefield that are within range of objectives and/or destroyed at least one friendly unit during the previous turn. If you cannot do so, choose any enemy unit on the battlefield instead. From now until the start of your next turn, those units are condemned.",
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of a turn",
+                        rows: [
+                            { desc: "One or more condemned enemy units left the battlefield this turn.", vp: "5" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" },
+                            { desc: "You control more objectives than your opponent.", vp: "5" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "You control your opponent's home objective.", vp: "8" }
+                        ]
+                    }
+                ]
+            },
+            "Consecrate": {
+                setup: "CONSECRATE: When a friendly unit destroys an enemy unit it becomes a consecration unit. At the end of your turn, each consecration unit in range of an objective (excluding your home objective) not yet consecrated consecrates it — place an operation marker there; the unit then is no longer a consecration unit.",
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "One or two objectives are consecrated.", vp: "3" },
+                            { desc: "Three or more objectives are consecrated.", vp: "6", separator: "OR" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control at least one objective (excluding your home).", vp: "4" },
+                            { desc: "You control more objectives than your opponent.", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "The enemy home objective has been consecrated.", vp: "5" }
+                        ]
+                    }
+                ]
+            },
+            "Destroyer's Wrath": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "One or more enemy units were destroyed this turn.", vp: "3" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" },
+                            { desc: "You control more objectives than your opponent.", vp: "6" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "More enemy units were destroyed this turn than friendly units were destroyed in the previous turn.", vp: "4" }
+                        ]
+                    }
+                ]
+            },
+
+            // --- DISRUPTION DECK ---
+            "Death Trap": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "For each terrain area trapped this turn (see reverse).", vp: "2" },
+                            { desc: "For each of those terrain areas that is an objective.", vp: "+3", cumulative: true }
+                        ]
+                    },
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "At least one enemy unit that started the turn in a terrain area has been destroyed, provided that terrain area is trapped.", vp: "3" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control at least one objective (excluding your home objective).", vp: "4" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Booby Trap",
+                    text: "Starts: Your Shooting phase. Units: One friendly unit within range of an objective (excluding home) or within an untrapped terrain area outside deployment. Completes: Immediately. Effect: The terrain area is trapped — place an operation marker within it. Limit: Each unit must initiate this in a different area."
+                }
+            },
+            "Delaying Action": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "For each enemy unit destroyed this turn.", vp: "2" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control at least one objective (excluding home objectives).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "You control at least one central objective and at least one expansion objective.", vp: "3" }
+                        ]
+                    }
+                ]
+            },
+            "Outmanoeuvre": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "You control the enemy home objective.", vp: "10" }
+                        ]
+                    },
+                    {
+                        timing: "FIRST BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "For each objective you control (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND & THIRD BATTLE ROUND",
+                        when: "End of your Command phase",
+                        rows: [
+                            { desc: "For each objective you control (excluding your home objective).", vp: "5" }
+                        ]
+                    },
+                    {
+                        timing: "FOURTH BATTLE ROUND ONWARDS",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "For each objective you control (excluding your home objective).", vp: "6" }
+                        ]
+                    }
+                ]
+            },
+            "Smoke and Mirrors": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "For each objective that is a decoy (see reverse).", vp: "2" },
+                            { desc: "For each of those objectives that is within your opponent's territory.", vp: "+2", cumulative: true }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control at least one objective (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "At least four objectives are decoys.", vp: "10" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Decoy",
+                    text: "Starts: Your Shooting phase. Units: One friendly unit within range of an objective (excluding home) not already decoy. Completes: End of turn if controlled. Effect: Objective becomes decoy; place operation marker. Limit: Unlimited, but each unit must target a different objective."
+                }
+            },
+            "Locate and Deny": {
+                setup: "Select five terrain areas not within your deployment zone and place one of your operation markers in each. If this is not possible, place one in each terrain area outside your deployment zone.",
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "At least one enemy unit that started its turn within range of an objective has been destroyed.", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "Only one of your operation markers remains (see reverse), with a unit of yours in that terrain area and no enemy units there.", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control at least one objective (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "Only one of your operation markers remains, with a unit of yours in that terrain area and no enemy units there.", vp: "5" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Sensor Sweep",
+                    text: "Starts: Your Shooting phase. Units: One friendly unit within range of a central objective. Completes: End of turn if controlled. Effect: Remove 1 operation marker from battlefield. (Cannot start if only 1 remains)."
+                }
+            },
+
+            // --- PRIORITY ASSETS DECK ---
+            "Secure Asset": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "A friendly unit secured the asset this turn (see reverse).", vp: "4" },
+                            { desc: "At least one enemy unit that started the turn within range of one or more central objectives was destroyed.", vp: "2" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" },
+                            { desc: "You control three or more objectives.", vp: "4" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Secure Asset",
+                    text: "Starts: Your Shooting phase. Units: One friendly unit within range of an objective (excluding your home objective). Limit: Once per turn. Completes: End of your turn, if that unit controls that objective. Effect: Your unit secures the asset."
+                }
+            },
+            "Vital Link": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "You control one or more central objectives.", vp: "2" },
+                            { desc: "For each of your operation markers within range of one of those objectives (see reverse).", vp: "+1", cumulative: true }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" },
+                            { desc: "One or more of those objectives is a central objective.", vp: "+4", cumulative: true }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "You control your opponent's home objective.", vp: "10" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Maintain Control",
+                    text: "Starts: Your Shooting phase. Units: One friendly unit within range of one central objective. Limit: Once per turn. Completes: End of your turn, if that unit controls that objective. Effect: Place one of your operation markers within range of that objective."
+                }
+            },
+            "Extract Relic": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "A friendly unit performed a sensor sweep this turn (see reverse).", vp: "4" },
+                            { desc: "One or more enemy units that started the turn within range of one or more objectives are destroyed.", vp: "3" },
+                            { desc: "Only one of your opponent's operation markers is on the battlefield, if one or more of your units are within the same terrain area as that operation marker, and no enemy units are within that terrain area.", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "Only one of your opponent's operation markers is on the battlefield, if one or more of your units are within the same terrain area as that operation marker, and no enemy units are within that terrain area.", vp: "5" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Sensor Sweep",
+                    text: "Starts: Your Shooting phase. Units: One friendly unit within range of a central objective. Limit: Once per turn. Completes: End of your turn, if that unit controls that objective. Effect: Your unit performs a sensor sweep — remove one operation marker from the battlefield. Restrictions: A unit cannot start this action if only one operation marker remains on the battlefield."
+                }
+            },
+            "Vanguard Operation": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "A friendly unit performed a vanguard operation this turn (see reverse).", vp: "4" },
+                            { desc: "One or more enemy units were destroyed this turn.", vp: "2" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "You control your opponent's home objective.", vp: "10" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Vanguard Operation",
+                    text: "Starts: Your Shooting phase. Units: One friendly unit within a terrain area located in enemy territory. Limit: Once per turn. Completes: End of your turn, provided no enemy units are within that terrain area. Effect: Your unit performs a vanguard operation."
+                }
+            },
+            "Sabotage": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "For each friendly unit that committed sabotage this turn (see reverse).", vp: "3" },
+                            { desc: "For each of those units that is within range of one or more objectives in your opponent's territory.", vp: "+2", cumulative: true }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Sabotage",
+                    text: "Starts: Your Shooting phase. Units: One unit within range of an objective (excluding your home objective). Limit: Unlimited. Each unit that starts this action this phase must be within range of a different objective. Completes: End of your turn, if that unit controls that objective. Effect: Your unit commits sabotage."
+                }
+            },
+
+            // --- RECONNAISSANCE DECK ---
+            "Surveil the Foe": {
+                setup: null,
+                global_rule: "Each time a friendly unit ends a move within range of an objective that has enemy operation markers within range of it, remove those operation markers from the battlefield.",
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "One or more enemy units were surveilled this turn (see reverse), unless each of those units is within range of one or more objectives that have one or more operation markers within range of them.", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" },
+                            { desc: "You control more objectives than your opponent.", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "No enemy operation markers are on the battlefield.", vp: "5" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Surveil the Foe",
+                    text: "Starts: Your Shooting phase. Units: One friendly unit. Limit: Unlimited. Completes: Immediately. Effect: Select one enemy unit within 18\" of your unit that is visible to it and has not yet been surveilled this turn. Until the end of the turn, that enemy unit is surveilled."
+                }
+            },
+            "Triangulation": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "One objective is triangulated (see reverse).", vp: "3" },
+                            { desc: "Two objectives are triangulated.", vp: "6", separator: "OR" },
+                            { desc: "Three or more objectives are triangulated.", vp: "10", separator: "OR" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "You control four or more objectives.", vp: "10" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Triangulate",
+                    text: "Starts: Your Shooting phase, from the second battle round onwards. Units: One friendly unit within range of an objective (excluding your home objective). Limit: Once per turn. Completes: End of your turn, if your unit controls that objective. Effect: That objective is triangulated — place one of your operation markers within range of that objective."
+                }
+            },
+            "Gather Intel": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "FIRST BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "You control one or more central objectives.", vp: "6" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "For each friendly unit that extracted intelligence this turn (see reverse).", vp: "7" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "Three or more of your operation markers are on the battlefield.", vp: "5" },
+                            { desc: "One of your operation markers is within range of your opponent's home objective.", vp: "5" }
+                        ]
+                    }
+                ],
+                action: {
+                    name: "Extract Intelligence",
+                    text: "Starts: Your Shooting phase, from the second battle round onwards. Units: One friendly unit within range of an objective (excluding your home objective) that does not have any of your operation markers within range of it. Limit: Unlimited. Each unit that starts this action this phase must be within range of a different objective. Completes: End of your turn, if your unit controls that objective. Effect: Your unit extracts intelligence — place one of your operation markers within range of that objective."
+                }
+            },
+            "Reconnaissance Sweep": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "Three or more friendly units are wholly within three different table quarters, and not within 6\" of the centre of the battlefield.", vp: "3" },
+                            { desc: "Four or more friendly units are wholly within four different table quarters, and not within 6\" of the centre of the battlefield.", vp: "6", separator: "OR" }
+                        ]
+                    },
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "For each enemy unit destroyed this turn.", vp: "1" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "You control one or more objectives (excluding your home objective).", vp: "3" }
+                        ]
+                    }
+                ]
+            },
+            "Search and Scour": {
+                setup: null,
+                global_rule: null,
+                blocks: [
+                    {
+                        timing: "ANY BATTLE ROUND",
+                        when: "End of your turn",
+                        rows: [
+                            { desc: "You control one or more central objectives.", vp: "3" },
+                            { desc: "One or more enemy units that started the turn within a terrain area are destroyed.", vp: "2" }
+                        ]
+                    },
+                    {
+                        timing: "SECOND BATTLE ROUND ONWARDS",
+                        when: "End of your Command phase (or the end of your turn in the fifth battle round)",
+                        rows: [
+                            { desc: "For each objective you control (excluding your home objective).", vp: "4" }
+                        ]
+                    },
+                    {
+                        timing: "END OF BATTLE",
+                        when: null,
+                        rows: [
+                            { desc: "No enemy units are wholly within your territory.", vp: "5" }
+                        ]
+                    }
+                ]
+            }
+        };
+
         const forceDispositionMatrix = {
             "Take and Hold": {
                 "Take and Hold": "Battlefield Dominance",
-                "Purge the Foe": "Mirror",
-                "Disruption": "Immovable Object",
-                "Reconnaissance": "Determined Acquisition",
-                "Priority Assets": "Purge and Secure"
+                "Purge the Foe": "Immovable Object",
+                "Disruption": "Determined Acquisition",
+                "Reconnaissance": "Purge & Secure",
+                "Priority Assets": "Inescapable Dominion"
             },
             "Purge the Foe": {
                 "Take and Hold": "Unstoppable Force",
                 "Purge the Foe": "Meatgrinder",
-                "Disruption": "Mirror",
-                "Reconnaissance": "Punishment",
-                "Priority Assets": "Consecrate"
+                "Disruption": "Punishment",
+                "Reconnaissance": "Consecrate",
+                "Priority Assets": "Destroyer's Wrath"
             },
             "Disruption": {
                 "Take and Hold": "Death Trap",
                 "Purge the Foe": "Delaying Action",
                 "Disruption": "Outmanoeuvre",
-                "Reconnaissance": "Mirror",
-                "Priority Assets": "Smoke and Mirrors"
+                "Reconnaissance": "Smoke and Mirrors",
+                "Priority Assets": "Locate and Deny"
             },
             "Reconnaissance": {
                 "Take and Hold": "Reconnaissance Sweep",
                 "Purge the Foe": "Triangulation",
                 "Disruption": "Surveil the Foe",
                 "Reconnaissance": "Gather Intel",
-                "Priority Assets": "Mirror"
+                "Priority Assets": "Search and Scour"
             },
             "Priority Assets": {
                 "Take and Hold": "Secure Asset",
@@ -1084,6 +1448,24 @@
             }
         };
 
+        const dispositionClasses = {
+            "Purge the Foe": "bg-rose-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]",
+            "Priority Assets": "bg-sky-500 shadow-[0_0_8px_rgba(14,165,233,0.5)]",
+            "Disruption": "bg-fuchsia-500 shadow-[0_0_8px_rgba(217,70,239,0.5)]",
+            "Reconnaissance": "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]",
+            "Take and Hold": "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+        };
+
+        const categoryMeta = {
+            "Take and Hold": { border: "border-t-8 border-t-emerald-700 bg-emerald-950/10", headerBg: "bg-emerald-900", icon: "fa-chess-rook", textColor: "text-emerald-400" },
+            "Purge the Foe": { border: "border-t-8 border-t-rose-700 bg-rose-950/10", headerBg: "bg-rose-900", icon: "fa-skull-crossbones", textColor: "text-rose-400" },
+            "Disruption": { border: "border-t-8 border-t-fuchsia-700 bg-fuchsia-950/10", headerBg: "bg-fuchsia-900", icon: "fa-bomb", textColor: "text-fuchsia-400" },
+            "Priority Assets": { border: "border-t-8 border-t-amber-700 bg-amber-950/10", headerBg: "bg-amber-800", icon: "fa-location-arrow", textColor: "text-amber-500" },
+            "Reconnaissance": { border: "border-t-8 border-t-cyan-700 bg-cyan-950/10", headerBg: "bg-cyan-900", icon: "fa-eye", textColor: "text-cyan-400" }
+        };
+    </script>
+
+    <script>
         function sortByDpThenName(left, right) {
             return left.dp - right.dp || left.name.localeCompare(right.name) || left.origin.localeCompare(right.origin);
         }
@@ -1095,7 +1477,6 @@
                     ordered.push(deployment.disp);
                 }
             });
-
             return ordered.sort((left, right) => dispositionOrder.indexOf(left) - dispositionOrder.indexOf(right));
         }
 
@@ -1104,22 +1485,28 @@
             const container = document.getElementById(containerId);
 
             if (!panel.faction) {
-                container.innerHTML = `<p style="color: var(--text-muted);">${emptyMessage}</p>`;
+                container.innerHTML = `<p class="text-xs text-slate-500 italic">${emptyMessage}</p>`;
                 return;
             }
 
             if (panel.deployments.length === 0) {
-                container.innerHTML = '<p style="color: var(--accent-red); font-size: 0.9rem;">⚠️ No Detachments Active.</p>';
+                container.innerHTML = '<p class="text-xs text-rose-400 font-bold flex items-center gap-1">⚠️ No Detachments Active.</p>';
                 return;
             }
 
             let html = '';
             panel.deployments.forEach(deployment => {
                 html += `
-                    <div class="summary-block" style="border-left-color: ${accentColor};">
-                        <span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; font-weight:bold;">${deployment.origin}</span><br/>
-                        <strong>${deployment.name}</strong> <span style="font-size:0.8rem; color:var(--text-muted);">(${deployment.dp}DP)</span><br/>
-                        <span class="disposition-badge"><span class="disp-icon ${dispositionClasses[deployment.disp]}"></span>${deployment.disp}</span>
+                    <div class="bg-grimdark-900 border-l-4 border-grimdark-850 p-3 rounded-r-lg shadow" style="border-left-color: ${accentColor};">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[9px] text-slate-400 uppercase font-bold tracking-wider">${deployment.origin}</span>
+                            <span class="text-[10px] font-bold text-amber-500 font-cinzel">${deployment.dp} DP</span>
+                        </div>
+                        <strong class="text-xs text-slate-200 block truncate">${deployment.name}</strong>
+                        <div class="flex items-center gap-1.5 mt-1">
+                            <span class="w-1.5 h-1.5 rounded-full ${dispositionClasses[deployment.disp]}"></span>
+                            <span class="text-[9px] text-slate-400 uppercase font-semibold">${deployment.disp}</span>
+                        </div>
                     </div>
                 `;
             });
@@ -1137,7 +1524,7 @@
             if (dispositions.length === 0) {
                 select.disabled = true;
                 select.innerHTML = `<option value="">${placeholder}</option>`;
-                chips.innerHTML = '<span class="chip">No dispositions selected</span>';
+                chips.innerHTML = '<span class="px-2 py-0.5 rounded-full text-[9px] font-bold border border-grimdark-800 text-slate-500 bg-grimdark-900">No dispositions</span>';
                 return;
             }
 
@@ -1152,10 +1539,126 @@
                 select.appendChild(option);
 
                 const chip = document.createElement('span');
-                chip.className = 'chip';
+                chip.className = 'px-2 py-0.5 rounded-full text-[9px] font-bold border border-grimdark-700 bg-grimdark-900/60 text-slate-300';
                 chip.textContent = disposition;
                 chips.appendChild(chip);
             });
+        }
+
+        function generateRulesOutputBlock(missionTitle, themeColorClass, parentCategory) {
+            const data = missionCardDatabase[missionTitle];
+            if (!data) return `<p class="text-xs text-slate-400 italic">No supplemental mission rules available.</p>`;
+
+            const meta = categoryMeta[parentCategory] || { border: "border-t-8 border-t-slate-700 bg-slate-950/10", headerBg: "bg-slate-900", icon: "fa-crosshairs", textColor: "text-slate-400" };
+
+            let html = `
+                <div class="bg-[#fbfbf8] border border-[#d3c8a9] rounded-xl overflow-hidden shadow-xl max-w-full text-slate-800 font-sans text-left transition-all duration-300">
+                    <!-- Card Top Header Band -->
+                    <div class="flex justify-between items-center px-4 py-2 bg-[#eae3d2] border-b border-[#d3c8a9]">
+                        <span class="text-[9px] font-black tracking-[0.25em] text-[#726242] uppercase font-cinzel">PRIMARY MISSION</span>
+                        <div class="w-7 h-7 ${meta.headerBg} rounded-full flex items-center justify-center text-white shadow-sm">
+                            <i class="fa-solid ${meta.icon} text-xs"></i>
+                        </div>
+                    </div>
+
+                    <!-- Title Body Header block -->
+                    <div class="px-4 pt-3 pb-2">
+                        <h1 class="text-xl md:text-2xl font-black font-cinzel text-slate-900 uppercase tracking-wide leading-tight">${missionTitle}</h1>
+                    </div>
+            `;
+
+            if (data.setup) {
+                html += `
+                    <div class="mx-4 mb-4 p-3 bg-amber-50/60 border-l-4 border-amber-600/80 rounded-r text-[11px] text-slate-700 leading-relaxed font-medium">
+                        <strong class="uppercase text-[9px] tracking-wider text-amber-800 block mb-0.5">MISSION SETUP DIRECTIVE</strong>
+                        ${data.setup}
+                    </div>
+                `;
+            }
+
+            if (data.global_rule) {
+                html += `
+                    <div class="mx-4 mb-4 p-3 bg-red-50/60 border-l-4 border-red-700 text-[11px] text-slate-700 leading-relaxed font-semibold">
+                        ${data.global_rule}
+                    </div>
+                `;
+            }
+
+            // Render structured Timing Blocks
+            html += `<div class="px-4 pb-4 space-y-4">`;
+            data.blocks.forEach(block => {
+                html += `
+                    <div class="bg-white border border-[#eae3d2] rounded-lg shadow-sm overflow-hidden">
+                        <!-- Timing block header strip (navy blue) -->
+                        <div class="bg-[#11233d] text-white text-[9px] md:text-[10px] font-extrabold tracking-widest px-3 py-1.5 uppercase flex justify-between items-center">
+                            <span>${block.timing}</span>
+                            <span class="text-[8px] text-[#8ea7c5] font-black tracking-wider uppercase">VP</span>
+                        </div>
+                `;
+
+                if (block.when) {
+                    html += `
+                        <div class="bg-[#f0f4f8] px-3 py-1.5 border-b border-[#d3c8a9]/40 flex items-center gap-2">
+                            <span class="bg-[#11233d] text-white text-[8px] font-black uppercase px-1.5 py-0.5 rounded-sm flex-shrink-0 tracking-wider">● WHEN</span>
+                            <span class="text-[10px] font-bold text-slate-700 italic">${block.when}</span>
+                        </div>
+                    `;
+                }
+
+                html += `<div class="divide-y divide-[#d3c8a9]/20">`;
+                block.rows.forEach((row, rIdx) => {
+                    if (rIdx > 0 && row.separator) {
+                        html += `
+                            <div class="relative flex py-1 items-center justify-center px-4">
+                                <div class="flex-grow border-t border-dashed border-[#d3c8a9]"></div>
+                                <span class="flex-shrink mx-3 text-[8px] font-black bg-[#911f1f] text-white px-2 py-0.5 rounded uppercase tracking-wider shadow">${row.separator}</span>
+                                <div class="flex-grow border-t border-dashed border-[#d3c8a9]"></div>
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                        <div class="p-3 flex items-center justify-between gap-4">
+                            <div class="flex-grow">
+                    `;
+
+                    if (row.cumulative) {
+                        html += `
+                            <div class="inline-flex bg-[#cda02c] text-white text-[8px] font-black uppercase px-2 py-0.5 rounded-full tracking-wider mb-1 shadow-sm">
+                                + CUMULATIVE
+                            </div>
+                        `;
+                    }
+
+                    html += `
+                                <p class="text-xs md:text-[13px] text-slate-800 leading-relaxed font-semibold">${row.desc}</p>
+                            </div>
+                            <!-- Side VP block (dark navy blue square) -->
+                            <div class="w-12 h-12 bg-[#11233d] rounded-lg flex flex-col items-center justify-center text-white flex-shrink-0 shadow border border-slate-700/20">
+                                <span class="text-xl font-black leading-none">${row.vp}</span>
+                                <span class="text-[8px] font-bold text-[#8ea7c5] uppercase tracking-wider mt-0.5">VP</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            });
+            html += `</div>`;
+
+            if (data.action) {
+                html += `
+                    <div class="m-4 bg-[#fcfaf2] border border-amber-600/30 p-3 rounded-lg text-left">
+                        <div class="flex items-center gap-2 mb-1.5 border-b border-[#eae3d2] pb-1.5">
+                            <i class="fa-solid fa-gears text-amber-700 text-xs"></i>
+                            <span class="text-[9px] font-black text-amber-800 uppercase tracking-widest font-cinzel">OBJECTIVE ACTION: ${data.action.name}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-600 leading-relaxed">${data.action.text}</p>
+                    </div>
+                `;
+            }
+
+            html += `</div>`;
+            return html;
         }
 
         function buildDispositionMatrix(attackerDispositions, defenderDispositions) {
@@ -1179,65 +1682,87 @@
             const activeOpponentDisposition = opponentSelect.value;
 
             if (!activeYourDisposition || !activeOpponentDisposition) {
-                matrixContainer.innerHTML = '<div class="matchup-empty">Select one disposition from each side to reveal the relevant matchup card.</div>';
+                matrixContainer.innerHTML = '<div class="text-center py-10 bg-grimdark-950 border border-grimdark-800 text-xs text-slate-500 italic rounded-lg">Select one deployment disposition from each side to generate the tactical matchup breakdown card.</div>';
                 return;
             }
 
-            const title = forceDispositionMatrix[activeYourDisposition][activeOpponentDisposition];
+            const titleA = forceDispositionMatrix[activeYourDisposition][activeOpponentDisposition];
+            const titleB = forceDispositionMatrix[activeOpponentDisposition][activeYourDisposition];
             const isMirror = activeYourDisposition === activeOpponentDisposition;
 
+            let resultsCardHtml = '';
+            if (isMirror) {
+                resultsCardHtml = `
+                    <div class="mt-4 bg-amber-500/5 border border-amber-500/20 p-5 rounded-lg text-center">
+                        <p class="text-xs text-amber-500/80 font-bold tracking-wider uppercase mb-3">Mirror Matchup Active</p>
+                        <div class="w-full max-w-lg mx-auto">
+                            ${generateRulesOutputBlock(titleA, 'border-amber-500', activeYourDisposition)}
+                        </div>
+                    </div>
+                `;
+            } else {
+                resultsCardHtml = `
+                    <div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-emerald-500/5 border border-emerald-500/20 p-4 rounded-lg text-center">
+                            <p class="text-xs text-emerald-400 font-bold tracking-wider uppercase mb-3">Your Mission (${activeYourDisposition})</p>
+                            ${generateRulesOutputBlock(titleA, 'border-emerald-500', activeYourDisposition)}
+                        </div>
+                        <div class="bg-sky-500/5 border border-sky-500/20 p-4 rounded-lg text-center">
+                            <p class="text-xs text-sky-400 font-bold tracking-wider uppercase mb-3">Opponent Mission (${activeOpponentDisposition})</p>
+                            ${generateRulesOutputBlock(titleB, 'border-sky-500', activeOpponentDisposition)}
+                        </div>
+                    </div>
+                `;
+            }
+
             matrixContainer.innerHTML = `
-                <div class="matchup-card">
-                    <div class="matchup-card-topline">
-                        <span>You Play: ${activeYourDisposition}</span>
-                        <span>Opponent Plays: ${activeOpponentDisposition}</span>
+                <div class="bg-grimdark-950 border border-amber-500/20 p-5 rounded-xl shadow-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-2xl"></div>
+                    <div class="flex justify-between items-center gap-4 flex-wrap border-b border-grimdark-800 pb-2 mb-4 text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                        <span>Your Choice: ${activeYourDisposition}</span>
+                        <span>Opponent's Choice: ${activeOpponentDisposition}</span>
                     </div>
-                    <div class="matchup-card-main">
-                        <div class="matchup-side">
-                            <div class="matchup-side-label">You</div>
-                            <div class="matchup-side-title">${activeYourDisposition}</div>
-                            <div class="matchup-side-label">Selected disposition</div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center mb-4">
+                        <div class="bg-grimdark-900 border border-grimdark-800 p-3 rounded-lg text-center">
+                            <span class="text-[9px] text-slate-500 uppercase tracking-wider font-semibold">You</span>
+                            <p class="text-sm font-bold font-cinzel text-slate-100 mt-1">${activeYourDisposition}</p>
                         </div>
-                        <div class="matchup-vs">VS</div>
-                        <div class="matchup-side">
-                            <div class="matchup-side-label">Opponent</div>
-                            <div class="matchup-side-title">${activeOpponentDisposition}</div>
-                            <div class="matchup-side-label">Selected disposition</div>
+                        <div class="text-center font-cinzel text-amber-500 font-black text-sm tracking-widest py-1">VS</div>
+                        <div class="bg-grimdark-900 border border-grimdark-800 p-3 rounded-lg text-center">
+                            <span class="text-[9px] text-slate-500 uppercase tracking-wider font-semibold">Opponent</span>
+                            <p class="text-sm font-bold font-cinzel text-slate-100 mt-1">${activeOpponentDisposition}</p>
                         </div>
                     </div>
-                    <div class="matchup-result">
-                        <div class="matchup-result-title">${title}</div>
-                        <div class="matchup-result-subtitle">${isMirror ? 'Mirror matchup' : 'Force match up card from the matrix'}</div>
-                    </div>
+                    ${resultsCardHtml}
                 </div>
             `;
         }
 
-        const dispositionClasses = {
-            "Purge the Foe": "disp-purge",
-            "Priority Assets": "disp-priority",
-            "Disruption": "disp-disruption",
-            "Reconnaissance": "disp-recon",
-            "Take and Hold": "disp-take"
-        };
-
         function switchCategory(panelId, categoryKey) {
-            document.getElementById(`btn-imperium-${panelId}`).classList.remove('active');
-            document.getElementById(`btn-space-marines-${panelId}`).classList.remove('active');
-            document.getElementById(`btn-chaos-${panelId}`).classList.remove('active');
-            document.getElementById(`btn-xenos-${panelId}`).classList.remove('active');
-            const activeButtonId = categoryKey === 'imperium' ? `btn-imperium-${panelId}` : `btn-${categoryKey.replace(/_/g, '-')}-${panelId}`;
-            document.getElementById(activeButtonId).classList.add('active');
+            ['imperium', 'space-marines', 'chaos', 'xenos'].forEach(cat => {
+                const btn = document.getElementById(`btn-${cat}-${panelId}`);
+                if (btn) {
+                    btn.className = "bg-grimdark-950 hover:bg-grimdark-800 border border-grimdark-700 text-[10px] font-bold text-slate-300 py-2 rounded uppercase transition-all tracking-wider";
+                }
+            });
+
+            const targetKey = categoryKey.replace(/_/g, '-');
+            const activeButton = document.getElementById(`btn-${targetKey}-${panelId}`);
+            if (activeButton) {
+                activeButton.className = "bg-amber-500 text-grimdark-950 border border-amber-600 text-[10px] font-bold py-2 rounded uppercase transition-all tracking-wider shadow-gothic-glow";
+            }
 
             state[panelId].currentCat = categoryKey;
             state[panelId].faction = "";
             state[panelId].deployments = [];
 
+            document.getElementById(`dp-warning-${panelId}`).classList.add('hidden');
+
             const dropdown = document.getElementById(`army-select-${panelId}`);
             dropdown.disabled = false;
             dropdown.innerHTML = '<option value="">-- Select Faction --</option>';
 
-            Object.keys(allFactionDatabase[categoryKey]).sort((left, right) => left.localeCompare(right)).forEach(fac => {
+            Object.keys(allFactionDatabase[categoryKey]).sort((l, r) => l.localeCompare(r)).forEach(fac => {
                 let opt = document.createElement("option");
                 opt.value = fac;
                 opt.textContent = fac;
@@ -1245,9 +1770,9 @@
             });
 
             document.getElementById(`detachment-list-${panelId}`).innerHTML = 
-                '<p style="color: var(--text-muted); font-size: 0.9rem;">Select a sub-faction army configuration option...</p>';
+                '<p class="text-xs text-slate-500 italic">Select sub-faction army configuration options...</p>';
             
-            document.getElementById(`logo-${panelId}`).textContent = `F${panelId}`;
+            document.getElementById(`logo-${panelId}`).textContent = panelId === 1 ? "YOU" : "OPP";
             updateDPDisplay(panelId);
             renderMatrix();
         }
@@ -1259,12 +1784,14 @@
             state[panelId].faction = faction;
             state[panelId].deployments = [];
 
+            document.getElementById(`dp-warning-${panelId}`).classList.add('hidden');
+
             const listContainer = document.getElementById(`detachment-list-${panelId}`);
             const logoBox = document.getElementById(`logo-${panelId}`);
 
             if (!faction) {
-                listContainer.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">Select a sub-faction army configuration option...</p>';
-                logoBox.textContent = `F${panelId}`;
+                listContainer.innerHTML = '<p class="text-xs text-slate-500 italic">Select sub-faction army configuration options...</p>';
+                logoBox.textContent = panelId === 1 ? "YOU" : "OPP";
                 updateDPDisplay(panelId);
                 renderMatrix();
                 return;
@@ -1275,12 +1802,10 @@
 
             let compiledList = [];
 
-            // 1. Load sub-faction core selections
             allFactionDatabase[cat][faction].detachments.forEach(d => {
                 compiledList.push({ ...d, origin: 'Native Roster' });
             });
 
-            // 2. Cross-compatibility injection filter logic for Space Marines
             if (cat === "space_marines" && faction !== "Space Marines (Codex)") {
                 allFactionDatabase["space_marines"]["Space Marines (Codex)"].detachments.forEach(codexDet => {
                     if (!prohibitedCodexOptions.includes(codexDet.name)) {
@@ -1291,26 +1816,25 @@
 
             compiledList.sort(sortByDpThenName);
 
-            // Render DOM Node Layout Items
             compiledList.forEach((det, index) => {
                 const item = document.createElement("div");
-                item.className = "detachment-item";
+                item.className = "flex items-center justify-between bg-grimdark-950 border border-grimdark-700/60 p-2.5 rounded-lg cursor-pointer hover:border-slate-500 transition-all select-none";
                 item.id = `det-${panelId}-${index}`;
                 item.onclick = () => toggleDeploymentItem(panelId, index, det, compiledList);
 
-                const dispClass = dispositionClasses[det.disp] || "";
-                const labelClass = det.origin === 'Codex Base' ? 'source-codex' : 'source-chapter';
+                const dispDotClass = dispositionClasses[det.disp] || "bg-slate-500";
+                const originLabelClass = det.origin === 'Codex Base' ? 'text-slate-400' : 'text-amber-500/80';
 
                 item.innerHTML = `
-                    <div class="detachment-info">
-                        <span class="detachment-source ${labelClass}">${det.origin}</span>
-                        <span class="detachment-name">${det.name}</span>
-                        <span class="disposition-badge">
-                            <span class="disp-icon ${dispClass}"></span>
-                            ${det.disp}
+                    <div class="truncate mr-2 text-left">
+                        <span class="text-[9px] uppercase font-bold ${originLabelClass} block truncate">${det.origin}</span>
+                        <span class="text-xs font-semibold text-slate-200 block truncate">${det.name}</span>
+                        <span class="flex items-center gap-1 mt-0.5">
+                            <span class="w-1.5 h-1.5 rounded-full ${dispDotClass}"></span>
+                            <span class="text-[9px] text-slate-400 uppercase font-medium block">${det.disp}</span>
                         </span>
                     </div>
-                    <span class="dp-badge">${det.dp} DP</span>
+                    <span class="text-[10px] font-bold font-cinzel px-2 py-0.5 rounded bg-grimdark-900 border border-grimdark-800 text-slate-300 flex-shrink-0">${det.dp} DP</span>
                 `;
                 listContainer.appendChild(item);
             });
@@ -1324,13 +1848,16 @@
         function toggleDeploymentItem(panelId, index, selectedDetachment, currentPool) {
             const activeSelections = state[panelId].deployments;
             const existingIndex = activeSelections.findIndex(d => d.index === index);
+            const warningEl = document.getElementById(`dp-warning-${panelId}`);
+
+            warningEl.classList.add('hidden');
 
             if (existingIndex > -1) {
                 activeSelections.splice(existingIndex, 1);
             } else {
                 const totalCalculatedDP = activeSelections.reduce((sum, d) => sum + d.dp, 0);
                 if (totalCalculatedDP + selectedDetachment.dp > 3) {
-                    alert("Tactical System Check: Selection exceeds the max threshold ceiling allowance of 3 Detachment Points (DP).");
+                    warningEl.classList.remove('hidden');
                     return;
                 }
                 activeSelections.push({ index, ...selectedDetachment });
@@ -1338,7 +1865,9 @@
 
             currentPool.forEach((_, idx) => {
                 const elem = document.getElementById(`det-${panelId}-${idx}`);
-                if (elem) elem.classList.remove("selected");
+                if (elem) {
+                    elem.classList.remove("border-amber-500", "bg-amber-500/5");
+                }
             });
 
             const newTotalDP = activeSelections.reduce((sum, d) => sum + d.dp, 0);
@@ -1349,13 +1878,15 @@
 
                 const isSelected = activeSelections.some(d => d.index === idx);
                 if (isSelected) {
-                    elem.classList.add("selected");
+                    elem.classList.add("border-amber-500", "bg-amber-500/5");
                 }
 
                 if (!isSelected && (newTotalDP + det.dp > 3)) {
-                    elem.classList.add("disabled");
+                    elem.style.opacity = "0.4";
+                    elem.style.cursor = "not-allowed";
                 } else {
-                    elem.classList.remove("disabled");
+                    elem.style.opacity = "1";
+                    elem.style.cursor = "pointer";
                 }
             });
 
@@ -1369,9 +1900,9 @@
             counter.textContent = `${total} / 3 DP`;
 
             if (total === 3) {
-                counter.className = "dp-counter dp-max";
+                counter.className = "text-xs font-bold font-cinzel px-3 py-1 rounded bg-amber-500 text-grimdark-950 border border-amber-600 shadow-gothic-glow";
             } else {
-                counter.className = "dp-counter dp-under";
+                counter.className = "text-xs font-bold font-cinzel px-3 py-1 rounded bg-grimdark-950 text-slate-300 border border-grimdark-850";
             }
         }
 
@@ -1384,14 +1915,19 @@
 
             const attackHeader = document.getElementById("attacker-faction-name");
             const defendHeader = document.getElementById("defender-faction-name");
-            attackHeader.textContent = attacker.faction || "None Selected";
-            defendHeader.textContent = defender.faction || "None Selected";
+            
+            attackHeader.textContent = attacker.faction ? `Your Force: ${attacker.faction}` : "You (Not Loaded)";
+            defendHeader.textContent = defender.faction ? `Opponent's Force: ${defender.faction}` : "Opponent (Not Loaded)";
 
-            renderForceSummary(attackerPanelIdx, "attacker-matrix-content", "#ef4444", "Configure force data options inside the panel selectors.");
-            renderForceSummary(defenderPanelIdx, "defender-matrix-content", "#38bdf8", "Configure force data options inside the panel selectors.");
+            renderForceSummary(attackerPanelIdx, "attacker-matrix-content", "#f59e0b", "Deploy configurations in your panel.");
+            renderForceSummary(defenderPanelIdx, "defender-matrix-content", "#d4af37", "Deploy configurations in opponent's panel.");
 
             buildDispositionMatrix(getSelectedDispositions(attackerPanelIdx), getSelectedDispositions(defenderPanelIdx));
         }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMatrix();
+        });
     </script>
 </body>
 </html>
